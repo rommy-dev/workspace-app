@@ -1,4 +1,5 @@
 <?php
+
 namespace Config;
 
 use PDO;
@@ -8,35 +9,55 @@ class Database
 {
     private static ?PDO $connection = null;
 
-    // Empêche l'instanciation directe
+    // Empêche toute instanciation — ce n'est pas un objet, c'est un service statique
     private function __construct() {}
 
-    // Méthode statique pour récupérer la connexion
+    // Cloner l'instance n'a pas de sens non plus pour un singleton
+    private function __clone() {}
+
     public static function getConnection(): PDO
     {
         if (self::$connection === null) {
-            // Charger les variables d'environnement depuis .env
-            if (file_exists(__DIR__ . '/../../.env')) {
-                $env = parse_ini_file(__DIR__ . '/../../.env');
-            } else {
-                throw new \Exception('.env file not found!');
-            }
-
-            $host = $env['DB_HOST'] ?? 'localhost';
-            $dbname = $env['DB_NAME'] ?? 'test';
-            $user = $env['DB_USER'] ?? 'root';
-            $pass = $env['DB_PASS'] ?? '';
-
-            $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-
-            try {
-                self::$connection = new PDO($dsn, $user, $pass);
-                self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                throw new \Exception("Erreur de connexion PDO : " . $e->getMessage());
-            }
+            self::$connection = self::createConnection();
         }
 
         return self::$connection;
+    }
+
+    private static function createConnection(): PDO
+    {
+        $envPath = __DIR__ . '/../../.env';
+
+        if (!file_exists($envPath)) {
+            throw new \RuntimeException('.env file not found at: ' . $envPath);
+        }
+
+        $env = parse_ini_file($envPath);
+
+        $host   = $env['DB_HOST']    ?? 'localhost';
+        $dbname = $env['DB_NAME']    ?? '';
+        $user   = $env['DB_USER']    ?? 'root';
+        $pass   = $env['DB_PASS']    ?? '';
+        $port   = $env['DB_PORT']    ?? '3306';
+
+        $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+        ];
+
+        try {
+            return new PDO($dsn, $user, $pass, $options);
+        } catch (PDOException $e) {
+            // On ne re-throw pas le message brut en prod
+            throw new \RuntimeException(
+                'Erreur de connexion à la base de données. Vérifiez votre .env.',
+                (int) $e->getCode(),
+                $e  // $e reste accessible via getPrevious() pour le debug
+            );
+        }
     }
 }
