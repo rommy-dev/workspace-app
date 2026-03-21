@@ -9,13 +9,13 @@ CREATE TABLE users (
     
 CREATE TABLE workspaces (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    owner_id INT NOT NULL,
+    owner_id INT,
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_workspaces_owner
     	FOREIGN KEY (owner_id)
     	REFERENCES users(id)
-    	ON DELETE CASCADE
+    	ON DELETE SET NULL
     	ON UPDATE CASCADE
     );
 
@@ -41,7 +41,7 @@ CREATE TABLE workspace_members (
 CREATE TABLE pages (
     id INT PRIMARY KEY AUTO_INCREMENT,
     workspace_id INT NOT NULL,
-    owner_id INT NOT NULL,
+    owner_id INT,
     title VARCHAR(255) NOT NULL,
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -92,11 +92,9 @@ CREATE TABLE comments (
     CONSTRAINT fk_comments_user
     	FOREIGN KEY (user_id)
     	REFERENCES users(id)
-    	ON DELETE SET NULL
+    	ON DELETE CASCADE
     	ON UPDATE CASCADE
     );
-
-CREATE INDEX idx_users_email ON users(email);
 
 CREATE INDEX idx_pages_workspace_id ON pages(workspace_id);
 
@@ -105,3 +103,9 @@ CREATE INDEX idx_comments_page_id ON comments(page_id);
 CREATE INDEX idx_workspace_members_workspace_id ON workspace_members(workspace_id);
 
 CREATE INDEX idx_workspace_members_user_id ON workspace_members(user_id);
+
+CREATE INDEX idx_pages_updated_at ON pages(updated_at);
+
+CREATE INDEX idx_comments_created_at ON comments(created_at);
+
+CREATE INDEX idx_page_shares_permission ON page_shares(permission);
