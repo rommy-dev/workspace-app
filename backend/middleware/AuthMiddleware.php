@@ -8,10 +8,6 @@ class AuthMiddleware
     // Retourne l'user_id si tout est bon, arrête l'exécution sinon.
     public static function handle(): int
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         if (empty($_SESSION['user_id']) || !is_int($_SESSION['user_id'])) {
             http_response_code(401);
             header('Content-Type: application/json');

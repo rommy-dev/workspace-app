@@ -102,8 +102,6 @@ class AuthController
     // POST /api/auth/logout
     public function logout(array $params): void
     {
-        session_start();
-
         // Efface les données de session côté serveur
         session_unset();
         session_destroy();
@@ -117,8 +115,6 @@ class AuthController
     // GET /api/auth/me — retourne l'utilisateur courant (route protégée)
     public function me(array $params): void
     {
-        session_start();
-
         // Le middleware garantit que user_id existe ici
         $user = $this->userModel->findById($_SESSION['user_id']);
 
@@ -134,8 +130,6 @@ class AuthController
 
     private function startSession(int $userId): void
     {
-        session_start();
-
         // Régénère l'ID de session après connexion — protection contre
         // la fixation de session (session fixation attack)
         session_regenerate_id(true);
