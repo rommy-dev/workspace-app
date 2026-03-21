@@ -1,7 +1,7 @@
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash CHAR(60) NOT NULL,
     name VARCHAR(100) NOT NULL,
     avatar_url VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -54,7 +54,7 @@ CREATE TABLE pages (
     CONSTRAINT fk_pages_owner
     	FOREIGN KEY (owner_id)
     	REFERENCES users(id)
-    	ON DELETE CASCADE
+    	ON DELETE SET NULL
     	ON UPDATE CASCADE
     );
     
@@ -92,7 +92,7 @@ CREATE TABLE comments (
     CONSTRAINT fk_comments_user
     	FOREIGN KEY (user_id)
     	REFERENCES users(id)
-    	ON DELETE CASCADE
+    	ON DELETE SET NULL
     	ON UPDATE CASCADE
     );
 
