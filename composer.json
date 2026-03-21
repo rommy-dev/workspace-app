@@ -1,0 +1,16 @@
+{
+    "name": "rommy/workspace-app",
+    "description": "Backend PHP natif + MySQL + JS vanilla",
+    "type": "project",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Config\\":      "backend/config/",
+            "Backend\\":     "backend/",
+            "Controllers\\": "backend/controllers/",
+            "Models\\":      "backend/models/",
+            "Middleware\\":  "backend/middleware/"
+        }
+    }
+}

@@ -2,7 +2,8 @@
 
 namespace Controllers;
 
-class AuthController {
+class TestController
+{
     public function ping(array $params): void
     {
         http_response_code(200);
