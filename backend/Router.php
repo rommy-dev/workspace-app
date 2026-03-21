@@ -8,29 +8,32 @@ class Router
     private array $routes = [];
 
     // Méthodes d'enregistrement — une par verbe HTTP
-    public function get(string $pattern, array $handler): void
+    public function get(string $pattern, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('GET', $pattern, $handler);
+        $this->addRoute('GET', $pattern, $handler, $middlewares);
     }
 
-    public function post(string $pattern, array $handler): void
+    public function post(string $pattern, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('POST', $pattern, $handler);
+        $this->addRoute('POST', $pattern, $handler, $middlewares);
     }
 
-    public function put(string $pattern, array $handler): void
+    public function put(string $pattern, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('PUT', $pattern, $handler);
+        $this->addRoute('PUT', $pattern, $handler, $middlewares);
     }
 
-    public function delete(string $pattern, array $handler): void
+    public function delete(string $pattern, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('DELETE', $pattern, $handler);
+        $this->addRoute('DELETE', $pattern, $handler, $middlewares);
     }
 
-    private function addRoute(string $method, string $pattern, array $handler): void
+    private function addRoute(string $method, string $pattern, array $handler, array $middlewares = []): void
     {
-        $this->routes[$method][$pattern] = $handler;
+        $this->routes[$method][$pattern] = [
+            'handler'     => $handler,
+            'middlewares' => $middlewares,
+        ];
     }
 
     // Point d'entrée principal — appelé depuis index.php
@@ -52,11 +55,10 @@ class Router
             return;
         }
 
-        foreach ($methodRoutes as $pattern => $handler) {
+        foreach ($methodRoutes as $pattern => $route) {
             $params = $this->match($pattern, $uri);
-
             if ($params !== null) {
-                $this->call($handler, $params);
+                $this->call($route, $params);
                 return;
             }
         }
@@ -99,9 +101,13 @@ class Router
     }
 
     // Instancie le controller et appelle la méthode
-    private function call(array $handler, array $params): void
+    private function call(array $route, array $params): void
     {
-        [$controllerClass, $method] = $handler;
+        foreach ($route['middlewares'] as $middlewares) {
+            $middlewares::handle();
+        }
+
+        [$controllerClass, $method] = $route['handler'];
 
         if (!class_exists($controllerClass)) {
             $this->respond(500, ['error' => "Controller '$controllerClass' introuvable"]);
