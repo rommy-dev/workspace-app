@@ -18,6 +18,12 @@ const ui = {
     if (el) el.textContent = '';
   },
 
+  refreshIcons() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  },
+
   // ── Auth ────────────────────────────────────────────────────────────
   showAuthScreen() {
     this.show('auth-screen');
@@ -39,6 +45,7 @@ const ui = {
 
     if (workspaces.length === 0) {
       list.innerHTML = '<li class="empty-hint">Aucun workspace</li>';
+      this.refreshIcons();
       return;
     }
 
@@ -49,6 +56,8 @@ const ui = {
       li.dataset.id = ws.id;
       list.appendChild(li);
     });
+
+    this.refreshIcons();
   },
 
   // ── Workspace view ───────────────────────────────────────────────────
@@ -66,6 +75,7 @@ const ui = {
 
     if (pages.length === 0) {
       list.innerHTML = '<li class="empty-hint">Aucune page</li>';
+      this.refreshIcons();
       return;
     }
 
@@ -76,6 +86,8 @@ const ui = {
       li.dataset.id = page.id;
       list.appendChild(li);
     });
+
+    this.refreshIcons();
   },
 
   // ── Page view ────────────────────────────────────────────────────────
@@ -84,6 +96,7 @@ const ui = {
     this.show('page-view');
     this.setVal('page-title-input', page.title);
     this.setVal('page-content-input', page.content || '');
+    this.refreshIcons();
   },
 
   showEmptyState() {

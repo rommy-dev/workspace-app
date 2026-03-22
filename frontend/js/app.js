@@ -182,3 +182,8 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
 
 // ── Démarrage ────────────────────────────────────────────────────────
 init();
+
+// Active Lucide si présent (icônes inline via data-lucide)
+if (window.lucide && typeof window.lucide.createIcons === 'function') {
+  window.lucide.createIcons();
+}
