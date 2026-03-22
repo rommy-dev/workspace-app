@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace App</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ── Écran d'authentification ───────────────────────────── -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <h1>Workspace App</h1>
+
+      <div id="auth-tabs">
+        <button class="tab active" data-tab="login">Connexion</button>
+        <button class="tab" data-tab="register">Inscription</button>
+      </div>
+
+      <!-- Login -->
+      <div id="login-form" class="auth-form">
+        <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+        <input type="password" id="login-password" placeholder="Mot de passe">
+        <div class="form-error" id="login-error"></div>
+        <button id="login-btn">Se connecter</button>
+      </div>
+
+      <!-- Register -->
+      <div id="register-form" class="auth-form hidden">
+        <input type="text" id="register-name" placeholder="Nom complet">
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Mot de passe (8 car. min)">
+        <div class="form-error" id="register-error"></div>
+        <button id="register-btn">Créer un compte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── App principale (masquée jusqu'à la connexion) ──────── -->
+  <div id="app-screen" class="hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div id="user-info">
+        <span id="user-name"></span>
+        <button id="logout-btn">Déconnexion</button>
+      </div>
+
+      <div id="sidebar-header">
+        <h2>Workspaces</h2>
+        <button id="new-workspace-btn">+</button>
+      </div>
+
+      <ul id="workspace-list"></ul>
+    </aside>
+
+    <!-- Main content -->
+    <main id="main-content">
+
+      <!-- État vide — aucun workspace sélectionné -->
+      <div id="empty-state">
+        <p>Sélectionne un workspace ou crée-en un.</p>
+      </div>
+
+      <!-- Vue workspace — affichée quand un workspace est sélectionné -->
+      <div id="workspace-view" class="hidden">
+        <div id="workspace-header">
+          <h2 id="workspace-title"></h2>
+          <button id="new-page-btn">Nouvelle page</button>
+          <button id="delete-workspace-btn" class="btn-danger">Supprimer</button>
+        </div>
+        <ul id="page-list"></ul>
+      </div>
+
+      <!-- Vue page — affichée quand une page est sélectionnée -->
+      <div id="page-view" class="hidden">
+        <div id="page-header">
+          <button id="back-to-workspace-btn">← Retour</button>
+          <input type="text" id="page-title-input" placeholder="Titre de la page">
+          <button id="save-page-btn">Sauvegarder</button>
+          <button id="delete-page-btn" class="btn-danger">Supprimer</button>
+        </div>
+        <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Scripts — dans l'ordre de dépendance -->
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
