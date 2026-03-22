@@ -103,6 +103,25 @@ function initLucideIcons() {
   }, { once: true });
 }
 
+// ── Sidebar toggle ──────────────────────────────────────────────────
+function initSidebarToggle() {
+  const toggle = document.getElementById('sidebar-toggle');
+  if (!toggle) return;
+
+  toggle.addEventListener('click', () => {
+    const collapsed = document.body.classList.toggle('sidebar-collapsed');
+
+    const iconEl = toggle.querySelector('[data-lucide]');
+    if (iconEl) {
+      iconEl.setAttribute('data-lucide', collapsed ? 'chevron-right' : 'chevron-left');
+    }
+
+    toggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    toggle.setAttribute('aria-label', collapsed ? 'Ouvrir le menu' : 'Fermer le menu');
+    ui.refreshIcons();
+  });
+}
+
 // ── Tabs auth ───────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -222,3 +241,4 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
 init();
 initPasswordToggles();
 initLucideIcons();
+initSidebarToggle();

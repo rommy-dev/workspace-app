@@ -53,17 +53,33 @@
     <!-- Sidebar -->
     <aside id="sidebar">
       <div id="user-info">
-        <span id="user-name"></span>
-        <button id="logout-btn">Déconnexion</button>
+        <div class="user-meta">
+          <i data-lucide="user"></i>
+          <span id="user-name"></span>
+        </div>
       </div>
 
       <div id="sidebar-header">
-        <h2>Workspaces</h2>
+        <h2>
+          <span class="label-full">Workspaces</span>
+          <span class="label-short">Ws</span>
+        </h2>
         <button id="new-workspace-btn">+</button>
       </div>
 
       <ul id="workspace-list"></ul>
+
+      <div id="sidebar-footer">
+        <button id="logout-btn" class="btn-logout">
+          <i data-lucide="log-out"></i>
+          <span>Déconnexion</span>
+        </button>
+      </div>
     </aside>
+
+    <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Fermer le menu" aria-pressed="false">
+      <i data-lucide="chevron-left"></i>
+    </button>
 
     <!-- Main content -->
     <main id="main-content">

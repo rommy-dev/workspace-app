@@ -52,7 +52,20 @@ const ui = {
     workspaces.forEach(ws => {
       const li = document.createElement('li');
       li.className = 'workspace-item' + (ws.id === currentId ? ' active' : '');
-      li.textContent = ws.name;
+      const initials = ws.name
+        ? ws.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+        : '?';
+
+      const initialsEl = document.createElement('span');
+      initialsEl.className = 'ws-initials';
+      initialsEl.textContent = initials || '?';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'ws-name';
+      nameEl.textContent = ws.name;
+
+      li.appendChild(initialsEl);
+      li.appendChild(nameEl);
       li.dataset.id = ws.id;
       list.appendChild(li);
     });

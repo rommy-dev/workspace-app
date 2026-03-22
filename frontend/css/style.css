@@ -117,6 +117,7 @@ button:hover { background: #f0f0f0; }
 #app-screen {
   display: flex;
   height: 100vh;
+  position: relative;
 }
 
 #sidebar {
@@ -140,6 +141,14 @@ button:hover { background: #f0f0f0; }
   color: #555;
 }
 
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.user-meta svg { width: 18px; height: 18px; }
+
 #sidebar-header {
   display: flex;
   align-items: center;
@@ -150,6 +159,83 @@ button:hover { background: #f0f0f0; }
 #new-workspace-btn { border: none; background: none; font-size: 1.4rem; cursor: pointer; color: #555; padding: 0 .25rem; }
 
 #workspace-list { list-style: none; flex: 1; overflow-y: auto; }
+
+#sidebar-header .label-short { display: none; }
+
+#sidebar-footer {
+  padding: .75rem 1rem 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: .5rem;
+}
+
+.btn-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  background: #f9f9f9;
+}
+
+.btn-logout svg { width: 18px; height: 18px; }
+
+.sidebar-toggle {
+  position: absolute;
+  top: 1rem;
+  left: 240px;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #e1e1e1;
+  background: white;
+  color: #555;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.sidebar-toggle svg { 
+  width: 16px; 
+  height: 16px; 
+  border: 1px solid red;
+}
+
+.workspace-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.ws-initials {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f0f0f0;
+  color: #555;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+body.sidebar-collapsed #sidebar { width: 72px; }
+body.sidebar-collapsed #sidebar-toggle { left: 72px; }
+body.sidebar-collapsed #user-name { display: none; }
+body.sidebar-collapsed #sidebar-header { justify-content: center; }
+body.sidebar-collapsed #sidebar-header .label-full { display: none; }
+body.sidebar-collapsed #sidebar-header .label-short { display: inline; }
+body.sidebar-collapsed #new-workspace-btn { display: none; }
+body.sidebar-collapsed .workspace-item { justify-content: center; }
+body.sidebar-collapsed .workspace-item .ws-name { display: none; }
+body.sidebar-collapsed .workspace-item .ws-initials { display: flex; }
+body.sidebar-collapsed .btn-logout { justify-content: center; }
+body.sidebar-collapsed .btn-logout span { display: none; }
 
 .workspace-item {
   padding: .5rem 1rem;
