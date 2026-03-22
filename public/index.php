@@ -11,13 +11,60 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+$uriPath = parse_url(rawurldecode($_SERVER['REQUEST_URI']), PHP_URL_PATH) ?? '/';
+if ($uriPath !== '/') {
+    $uriPath = rtrim($uriPath, '/');
+}
+
+$isApi = ($uriPath === '/api' || strpos($uriPath, '/api/') === 0);
+
+// ── Frontend (SPA) ────────────────────────────────────────────────
+if (!$isApi) {
+    $frontendRoot = realpath(__DIR__ . '/../frontend');
+    if ($frontendRoot !== false) {
+        $requestedPath = realpath($frontendRoot . $uriPath);
+        if ($requestedPath !== false && strpos($requestedPath, $frontendRoot) === 0 && is_file($requestedPath)) {
+            $mime = @mime_content_type($requestedPath);
+            if ($mime === false) {
+                $ext = strtolower(pathinfo($requestedPath, PATHINFO_EXTENSION));
+                switch ($ext) {
+                    case 'css':  $mime = 'text/css'; break;
+                    case 'js':   $mime = 'application/javascript'; break;
+                    case 'html': $mime = 'text/html'; break;
+                    case 'json': $mime = 'application/json'; break;
+                    case 'svg':  $mime = 'image/svg+xml'; break;
+                    case 'png':  $mime = 'image/png'; break;
+                    case 'jpg':
+                    case 'jpeg': $mime = 'image/jpeg'; break;
+                    case 'gif':  $mime = 'image/gif'; break;
+                    case 'webp': $mime = 'image/webp'; break;
+                    case 'ico':  $mime = 'image/x-icon'; break;
+                    case 'woff': $mime = 'font/woff'; break;
+                    case 'woff2':$mime = 'font/woff2'; break;
+                    case 'ttf':  $mime = 'font/ttf'; break;
+                    default:     $mime = 'application/octet-stream'; break;
+                }
+            }
+
+            header('Content-Type: ' . $mime);
+            readfile($requestedPath);
+            exit;
+        }
+    }
+
+    header('Content-Type: text/html; charset=UTF-8');
+    require_once __DIR__ . '/../frontend/index.html';
+    exit;
+}
+
+// ── API ────────────────────────────────────────────────────────────
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(204);
     exit;
 }
 
@@ -73,8 +120,8 @@ $router->put('/api/workspaces/{workspaceId}/pages/{id}',
 $router->delete('/api/workspaces/{workspaceId}/pages/{id}',
     [Controllers\PageController::class, 'destroy'],
     [AuthMiddleware::class]);
-    
+
 $router->dispatch(
     $_SERVER['REQUEST_METHOD'],
-    $_SERVER['REQUEST_URI']
+    $uriPath
 );
