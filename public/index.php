@@ -32,6 +32,48 @@ $router->post('/api/auth/login',    [Controllers\AuthController::class, 'login']
 $router->post('/api/auth/logout',   [Controllers\AuthController::class, 'logout'],  [AuthMiddleware::class]);
 $router->get('/api/auth/me',        [Controllers\AuthController::class, 'me'],      [AuthMiddleware::class]);
 
+// ── Workspaces ─────────────────────────────────────────────────────
+$router->get('/api/workspaces',
+    [Controllers\WorkspaceController::class, 'index'],
+    [AuthMiddleware::class]);
+
+$router->post('/api/workspaces',
+    [Controllers\WorkspaceController::class, 'store'],
+    [AuthMiddleware::class]);
+
+$router->get('/api/workspaces/{id}',
+    [Controllers\WorkspaceController::class, 'show'],
+    [AuthMiddleware::class]);
+
+$router->put('/api/workspaces/{id}',
+    [Controllers\WorkspaceController::class, 'update'],
+    [AuthMiddleware::class]);
+
+$router->delete('/api/workspaces/{id}',
+    [Controllers\WorkspaceController::class, 'destroy'],
+    [AuthMiddleware::class]);
+
+// ── Pages (imbriquées dans workspace) ──────────────────────────────
+$router->get('/api/workspaces/{workspaceId}/pages',
+    [Controllers\PageController::class, 'index'],
+    [AuthMiddleware::class]);
+
+$router->post('/api/workspaces/{workspaceId}/pages',
+    [Controllers\PageController::class, 'store'],
+    [AuthMiddleware::class]);
+
+$router->get('/api/workspaces/{workspaceId}/pages/{id}',
+    [Controllers\PageController::class, 'show'],
+    [AuthMiddleware::class]);
+
+$router->put('/api/workspaces/{workspaceId}/pages/{id}',
+    [Controllers\PageController::class, 'update'],
+    [AuthMiddleware::class]);
+
+$router->delete('/api/workspaces/{workspaceId}/pages/{id}',
+    [Controllers\PageController::class, 'destroy'],
+    [AuthMiddleware::class]);
+    
 $router->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $_SERVER['REQUEST_URI']
