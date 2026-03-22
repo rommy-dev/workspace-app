@@ -21,6 +21,9 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   try {
     const data = await api.auth.login(email, password);
     state.currentUser = data.user;
+    ui.clearVal('login-email');
+    ui.clearVal('login-password');
+    ui.clearError('login-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
   } catch (err) {
@@ -37,6 +40,10 @@ document.getElementById('register-btn').addEventListener('click', async () => {
   try {
     const data = await api.auth.register(name, email, password);
     state.currentUser = data.user;
+    ui.clearVal('register-name');
+    ui.clearVal('register-email');
+    ui.clearVal('register-password');
+    ui.clearError('register-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
   } catch (err) {
