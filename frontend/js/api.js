@@ -1,5 +1,5 @@
-// URL de base — à modifier selon ton environnement
-const BASE_URL = 'http://workspace-app.local/api';
+// URL de base — même origine (IP ou domaine courant)
+const BASE_URL = '/api';
 
 // Helper interne — toutes les requêtes passent par là
 async function request(method, path, body = null) {
