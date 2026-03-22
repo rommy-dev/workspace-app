@@ -65,6 +65,44 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   ui.showAuthScreen();
 });
 
+// ── Toggle mot de passe (icône œil) ─────────────────────────────────
+function initPasswordToggles() {
+  document.querySelectorAll('.toggle-password').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+
+      const iconEl = btn.querySelector('[data-lucide]');
+      if (iconEl) iconEl.setAttribute('data-lucide', show ? 'eye-off' : 'eye');
+
+      btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+      btn.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      ui.refreshIcons();
+    });
+  });
+}
+
+// ── Icônes Lucide ───────────────────────────────────────────────────
+function initLucideIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+    return;
+  }
+
+  const script = document.getElementById('lucide-script');
+  if (!script) return;
+
+  script.addEventListener('load', () => {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }, { once: true });
+}
+
 // ── Tabs auth ───────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -182,8 +220,5 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
 
 // ── Démarrage ────────────────────────────────────────────────────────
 init();
-
-// Active Lucide si présent (icônes inline via data-lucide)
-if (window.lucide && typeof window.lucide.createIcons === 'function') {
-  window.lucide.createIcons();
-}
+initPasswordToggles();
+initLucideIcons();

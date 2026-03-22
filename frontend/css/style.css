@@ -44,6 +44,36 @@ body {
 
 .auth-form { display: flex; flex-direction: column; gap: .75rem; }
 
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon input {
+  padding-right: 2.4rem;
+}
+
+.auth-form .toggle-password {
+  position: absolute;
+  right: .6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: .2rem;
+  cursor: pointer;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-password:hover { color: #ccc; background: transparent; }
+.toggle-password:focus { outline: none; }
+.toggle-password svg, .toggle-password i[data-lucide] { width: 18px; height: 18px; }
+
 input, textarea {
   width: 100%;
   padding: .6rem .8rem;
@@ -53,6 +83,16 @@ input, textarea {
   outline: none;
 }
 input:focus, textarea:focus { border-color: #555; }
+
+.input-with-icon input {
+  width: 100%;
+  padding: .6rem .8rem .6rem .8rem;
+  padding-right: 2.4rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: .95rem;
+  outline: none;
+}
 
 button {
   padding: .6rem 1rem;
