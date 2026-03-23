@@ -90,7 +90,7 @@ document.getElementById('register-password').addEventListener('keypress', (e) =>
   if (e.key === 'Enter') {
     document.getElementById('register-btn').click();
   }
-});
+}); 
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await api.auth.logout();

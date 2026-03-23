@@ -705,8 +705,14 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
 .activity-meta { font-size: .8rem; color: #888; }
 
 @media (max-width: 768px) {
-  .label-full {
+  /* Masquer les labels seulement quand la sidebar est collapsed sur mobile */
+  body.sidebar-collapsed .label-full {
     display: none;
+  }
+
+  /* Assurer que les labels sont visibles quand la sidebar n'est pas collapsed */
+  body:not(.sidebar-collapsed) .label-full {
+    display: inline;
   }
 
   #page-header {
