@@ -6,6 +6,7 @@ async function init() {
     state.currentUser = data.user;
     ui.showAppScreen(data.user);
     await loadWorkspaces();
+    await loadDashboard();
   } catch {
     // Pas de session active — on affiche l'écran de connexion
     ui.showAuthScreen();
@@ -236,6 +237,20 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
 });
+
+// ── Dashboard ────────────────────────────────────────────────────────
+// Charge et affiche le dashboard
+async function loadDashboard() {
+  const data = await api.dashboard.get();
+  ui.renderDashboard(data);
+  ui.showDashboard();
+  // Désélectionne le workspace actif dans la sidebar
+  document.querySelectorAll('.workspace-item')
+    .forEach(el => el.classList.remove('active'));
+}
+
+// Bouton dashboard dans la sidebar
+document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
 
 // ── Démarrage ────────────────────────────────────────────────────────
 init();

@@ -57,4 +57,9 @@ const api = {
     update: (wsId, id, title, content) => request('PUT', `/workspaces/${wsId}/pages/${id}`, { title, content }),
     delete: (wsId, id)          => request('DELETE', `/workspaces/${wsId}/pages/${id}`),
   },
+
+  // ── Dashboard ─────────────────────────────────────────────────────────
+  dashboard: {
+    get: () => request('GET', '/dashboard'),
+  },
 };
