@@ -52,6 +52,13 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   }
 });
 
+// Event listener pour la touche Entrée sur le champ de mot de passe de connexion
+document.getElementById('login-password').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('login-btn').click();
+  }
+});
+
 document.getElementById('register-btn').addEventListener('click', async () => {
   ui.clearError('register-error');
   const name     = ui.val('register-name');
@@ -75,6 +82,13 @@ document.getElementById('register-btn').addEventListener('click', async () => {
       ? Object.values(err.errors).join(' ')
       : err.message;
     ui.showError('register-error', msg);
+  }
+});
+
+// Event listener pour la touche Entrée sur le champ de mot de passe d'inscription
+document.getElementById('register-password').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('register-btn').click();
   }
 });
 
