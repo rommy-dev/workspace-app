@@ -68,7 +68,9 @@
           <span class="label-full">Workspaces</span>
           <span class="label-short">Ws</span>
         </h2>
-        <button id="new-workspace-btn">+</button>
+        <button id="new-workspace-btn">
+          <i data-lucide="plus" class="icon"></i>
+        </button>
       </div>
 
       <ul id="workspace-list"></ul>
@@ -97,8 +99,14 @@
       <div id="workspace-view" class="hidden">
         <div id="workspace-header">
           <h2 id="workspace-title"></h2>
-          <button id="new-page-btn">Nouvelle page</button>
-          <button id="delete-workspace-btn" class="btn-danger">Supprimer</button>
+            <button id="new-page-btn">
+              <i data-lucide="plus" class="icon"></i> 
+              <span class="label-full">Nouvelle page</span>
+            </button>
+            <button id="delete-workspace-btn" class="btn-danger">
+              <i data-lucide="trash-2" class="icon"></i> 
+              <span class="label-full">Supprimer</span>
+            </button>
         </div>
         <ul id="page-list"></ul>
       </div>
@@ -106,10 +114,23 @@
       <!-- Vue page — affichée quand une page est sélectionnée -->
       <div id="page-view" class="hidden">
         <div id="page-header">
-          <button id="back-to-workspace-btn">← Retour</button>
-          <input type="text" id="page-title-input" placeholder="Titre de la page">
-          <button id="save-page-btn">Sauvegarder</button>
-          <button id="delete-page-btn" class="btn-danger">Supprimer</button>
+          <div class="page-header-left">
+            <button id="back-to-workspace-btn">
+              <i data-lucide="arrow-left" class="icon"></i> 
+              <span class="label-full">Retour</span>
+            </button>
+            <input type="text" id="page-title-input" placeholder="Titre de la page">
+          </div>
+          <div class="page-header-right">
+            <button id="save-page-btn">
+              <i data-lucide="save" class="icon"></i> 
+              <span class="label-full">Sauvegarder</span>
+            </button>
+            <button id="delete-page-btn" class="btn-danger">
+              <i data-lucide="trash-2" class="icon"></i> 
+              <span class="label-full">Supprimer</span>
+          </button>
+          </div>
         </div>
         <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
       </div>

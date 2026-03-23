@@ -101,8 +101,18 @@ button {
   background: white;
   cursor: pointer;
   font-size: .9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  transition: all 0.2s ease-in-out;
 }
+
 button:hover { background: #f0f0f0; }
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
 
 .auth-form button {
   background: #1a1a1a;
@@ -231,7 +241,7 @@ button:hover { background: #f0f0f0; }
 }
 
 .icon-sidebar-toggle {
-  font-size: 1.4rem;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -277,6 +287,7 @@ body.sidebar-collapsed .btn-logout span { display: none; }
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
 #workspace-title { font-size: 1.4rem; flex: 1; }
@@ -299,6 +310,20 @@ body.sidebar-collapsed .btn-logout span { display: none; }
   gap: .75rem;
   margin-bottom: 1rem;
 }
+
+.page-header-left {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: .75rem;
+}
+
+.page-header-right {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
 #page-title-input { flex: 1; font-size: 1.1rem; font-weight: 500; }
 #page-content-input {
   width: 100%;
@@ -313,3 +338,23 @@ body.sidebar-collapsed .btn-logout span { display: none; }
 
 .btn-danger { color: #c0392b; border-color: #e8a59a; }
 .btn-danger:hover { background: #fdf0ee; }
+
+@media (max-width: 768px) {
+  .label-full {
+    display: none;
+  }
+
+  #page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header-left {
+    width: 100%;
+  }
+
+  .page-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
