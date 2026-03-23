@@ -148,6 +148,8 @@ async function selectWorkspace(id) {
   state.pages = data.pages;
 
   const workspace = state.workspaces.find(w => w.id === id);
+  const dashboardBtn = document.getElementById('dashboard-btn');
+  if (dashboardBtn) dashboardBtn.classList.remove('active');
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
 }
@@ -244,6 +246,8 @@ async function loadDashboard() {
   const data = await api.dashboard.get();
   ui.renderDashboard(data);
   ui.showDashboard();
+  const dashboardBtn = document.getElementById('dashboard-btn');
+  if (dashboardBtn) dashboardBtn.classList.add('active');
   // Désélectionne le workspace actif dans la sidebar
   document.querySelectorAll('.workspace-item')
     .forEach(el => el.classList.remove('active'));

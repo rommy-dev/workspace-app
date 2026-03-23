@@ -52,6 +52,7 @@ const ui = {
     workspaces.forEach(ws => {
       const li = document.createElement('li');
       li.className = 'workspace-item' + (ws.id === currentId ? ' active' : '');
+      li.title = ws.name;
       const initials = ws.name
         ? ws.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
         : '?';
