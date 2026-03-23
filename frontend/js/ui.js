@@ -39,6 +39,8 @@ const ui = {
       return;
     }
     el.textContent = labels[role] || role;
+    // Ajoute la classe de couleur correspondante au rôle
+    el.className = `role-badge ${role}`;
     el.classList.remove('hidden');
   },
 
@@ -182,7 +184,7 @@ const ui = {
       email.textContent = member.email;
 
       const role = document.createElement('span');
-      role.className = 'member-role';
+      role.className = `member-role role-badge ${member.role}`;
       role.textContent = roleLabels[member.role] || member.role;
 
       meta.appendChild(name);
@@ -198,14 +200,14 @@ const ui = {
 
       if (isSelf) {
         const btn = document.createElement('button');
-        btn.textContent = 'Quitter';
+        btn.innerHTML = '<i data-lucide="log-out" class="icon"></i> Quitter';
         btn.dataset.action = 'leave';
         btn.dataset.userId = memberId;
         actions.appendChild(btn);
       } else if (canManageMembers && !isOwner) {
         const btn = document.createElement('button');
         btn.className = 'btn-danger';
-        btn.textContent = 'Retirer';
+        btn.innerHTML = '<i data-lucide="user-minus" class="icon"></i> Retirer';
         btn.dataset.action = 'remove';
         btn.dataset.userId = memberId;
         actions.appendChild(btn);

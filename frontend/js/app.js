@@ -383,6 +383,21 @@ async function loadDashboard() {
 // Bouton dashboard dans la sidebar
 document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
 
+// ── Collaboration ───────────────────────────────────────────────────────
+// Bouton pour afficher la section des collaborateurs
+document.getElementById('new-collab-btn').addEventListener('click', () => {
+  ui.show('workspace-collab');
+  ui.refreshIcons();
+});
+
+// Bouton pour fermer la section des collaborateurs
+document.getElementById('close-collab-btn').addEventListener('click', () => {
+  ui.hide('workspace-collab');
+  ui.clearError('invite-error');
+  ui.clearVal('invite-email');
+  ui.refreshIcons();
+});
+
 // ── Démarrage ────────────────────────────────────────────────────────
 init();
 initPasswordToggles();

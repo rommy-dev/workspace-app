@@ -105,30 +105,47 @@
       <div id="workspace-view" class="hidden">
         <div id="workspace-header">
           <h2 id="workspace-title"></h2>
-            <button id="new-page-btn">
-              <i data-lucide="plus" class="icon"></i> 
-              <span class="label-full">Nouvelle page</span>
-            </button>
-            <button id="delete-workspace-btn" class="btn-danger">
-              <i data-lucide="trash-2" class="icon"></i> 
-              <span class="label-full">Supprimer</span>
-            </button>
+          <button id="new-collab-btn">
+            <i data-lucide="user-plus" class="icon"></i> 
+            <span class="label-full">Collaborateur</span>
+          </button>
+          <button id="new-page-btn">
+            <i data-lucide="plus" class="icon"></i> 
+            <span class="label-full">Nouvelle page</span>
+          </button>
+          <button id="delete-workspace-btn" class="btn-danger">
+            <i data-lucide="trash-2" class="icon"></i> 
+            <span class="label-full">Supprimer</span>
+          </button>
         </div>
-        <div id="workspace-collab">
+        <div id="workspace-collab" class="hidden">
           <div class="collab-header">
             <h3>Collaborateurs</h3>
-            <span id="current-role-badge" class="role-badge"></span>
+            <div class="collab-header-actions">
+              <span id="current-role-badge" class="role-badge"></span>
+            </div>
+            <button id="close-collab-btn" class="btn-close" aria-label="Fermer">
+              <i data-lucide="x"></i>
+            </button>
           </div>
           <form id="invite-form" class="collab-invite hidden">
-            <input type="email" id="invite-email" placeholder="Email du membre">
+            <div class="form-input">
+              <p class="form-label">Ajouter un collaborateur</p>
+              <input type="email" id="invite-email" placeholder="Email du membre">
+            </div>
             <select id="invite-role">
               <option value="viewer">Lecteur</option>
               <option value="editor">Éditeur</option>
               <option value="admin">Admin</option>
             </select>
-            <button id="invite-btn" type="submit">Inviter</button>
+            <button id="invite-btn" type="submit">
+              <i data-lucide="user-plus" class="icon"></i>
+              Inviter
+            </button>
           </form>
           <div class="form-error" id="invite-error"></div>
+
+          <p class="form-label">Membres</p>
           <ul id="member-list"></ul>
         </div>
         <ul id="page-list"></ul>
