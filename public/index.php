@@ -151,6 +151,11 @@ $router->delete('/api/workspaces/{id}/members/{userId}',
     [Controllers\MemberController::class, 'destroy'],
     [AuthMiddleware::class]);
 
+    // ── Dashboard ─────────────────────────────────────────────────────
+$router->get('/api/dashboard',
+    [Controllers\DashboardController::class, 'index'],
+    [AuthMiddleware::class]);
+    
 $router->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $uriPath
