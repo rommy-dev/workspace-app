@@ -58,6 +58,13 @@ const api = {
     delete: (wsId, id)          => request('DELETE', `/workspaces/${wsId}/pages/${id}`),
   },
 
+  // ── Membres ──────────────────────────────────────────────────────
+  members: {
+    list:   (wsId)             => request('GET',    `/workspaces/${wsId}/members`),
+    add:    (wsId, email, role) => request('POST',   `/workspaces/${wsId}/members`, { email, role }),
+    remove: (wsId, userId)     => request('DELETE', `/workspaces/${wsId}/members/${userId}`),
+  },
+
   // ── Dashboard ─────────────────────────────────────────────────────────
   dashboard: {
     get: () => request('GET', '/dashboard'),

@@ -4,6 +4,8 @@ const state = {
   currentUser:        null,  // { id, name, email }
   workspaces:         [],    // tableau complet
   currentWorkspaceId: null,
+  currentWorkspaceRole: null, // owner | admin | editor | viewer
+  members:            [],    // membres du workspace courant
   pages:              [],    // pages du workspace courant
   currentPageId:      null,
 };

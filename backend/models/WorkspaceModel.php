@@ -91,4 +91,29 @@ class WorkspaceModel
 
         return $stmt->fetchColumn() !== false;
     }
+
+    // Retourne le rôle de l'utilisateur dans le workspace
+    // owner | admin | editor | viewer | null
+    public function getUserRole(int $workspaceId, int $userId): ?string
+    {
+        $stmt = $this->db->prepare('SELECT owner_id FROM workspaces WHERE id = ?');
+        $stmt->execute([$workspaceId]);
+        $ownerId = $stmt->fetchColumn();
+
+        if ($ownerId === false) {
+            return null;
+        }
+
+        if ((int) $ownerId === $userId) {
+            return 'owner';
+        }
+
+        $stmt = $this->db->prepare(
+            'SELECT role FROM workspace_members WHERE workspace_id = ? AND user_id = ?'
+        );
+        $stmt->execute([$workspaceId, $userId]);
+        $role = $stmt->fetchColumn();
+
+        return $role !== false ? (string) $role : null;
+    }
 }

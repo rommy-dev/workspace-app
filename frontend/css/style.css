@@ -74,7 +74,7 @@ body {
 .toggle-password:focus { outline: none; }
 .toggle-password svg, .toggle-password i[data-lucide] { width: 18px; height: 18px; }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   padding: .6rem .8rem;
   border: 1px solid #ddd;
@@ -82,7 +82,7 @@ input, textarea {
   font-size: .95rem;
   outline: none;
 }
-input:focus, textarea:focus { border-color: #555; }
+input:focus, textarea:focus, select:focus { border-color: #555; }
 
 .input-with-icon input {
   width: 100%;
@@ -108,6 +108,8 @@ button {
 }
 
 button:hover { background: #f0f0f0; }
+button[disabled] { opacity: .5; cursor: not-allowed; }
+button[disabled]:hover { background: white; }
 
 .icon {
   width: 16px;
@@ -183,6 +185,7 @@ button:hover { background: #f0f0f0; }
 #new-workspace-btn { border: none; background: none; font-size: 1.4rem; cursor: pointer; color: #555; padding: 0 .25rem; }
 
 #workspace-list { list-style: none; flex: 1; overflow-y: auto; }
+#workspace-list li { margin-bottom: .25rem; }
 
 #sidebar-header .label-short { display: none; }
 
@@ -304,6 +307,67 @@ body.sidebar-collapsed .btn-logout span { display: none; }
   margin-bottom: 1.5rem;
 }
 #workspace-title { font-size: 1.4rem; flex: 1; }
+
+#workspace-collab {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.collab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+}
+
+.role-badge {
+  font-size: .75rem;
+  padding: .2rem .6rem;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fafafa;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.collab-invite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .5rem;
+}
+
+.collab-invite input { flex: 1; min-width: 180px; }
+.collab-invite select { min-width: 140px; }
+
+#member-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: .5rem .75rem;
+  background: #fafafa;
+}
+
+.member-meta { display: flex; flex-direction: column; }
+.member-name { font-weight: 600; font-size: .92rem; }
+.member-email { font-size: .85rem; color: #666; }
+.member-role { font-size: .75rem; color: #777; text-transform: uppercase; letter-spacing: .04em; }
+
+.member-actions button { padding: .35rem .6rem; font-size: .8rem; }
 
 #page-list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
 

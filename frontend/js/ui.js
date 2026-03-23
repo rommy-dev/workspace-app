@@ -24,6 +24,50 @@ const ui = {
     }
   },
 
+  setWorkspaceRole(role) {
+    const el = document.getElementById('current-role-badge');
+    if (!el) return;
+    const labels = {
+      owner:  'Propriétaire',
+      admin:  'Admin',
+      editor: 'Éditeur',
+      viewer: 'Lecteur',
+    };
+    if (!role) {
+      el.textContent = '';
+      el.classList.add('hidden');
+      return;
+    }
+    el.textContent = labels[role] || role;
+    el.classList.remove('hidden');
+  },
+
+  toggleInviteForm(show) {
+    const form = document.getElementById('invite-form');
+    if (!form) return;
+    form.classList.toggle('hidden', !show);
+  },
+
+  setWorkspaceActions({ canDeleteWorkspace, canEditPages }) {
+    const deleteBtn = document.getElementById('delete-workspace-btn');
+    if (deleteBtn) deleteBtn.classList.toggle('hidden', !canDeleteWorkspace);
+
+    const newPageBtn   = document.getElementById('new-page-btn');
+    const savePageBtn  = document.getElementById('save-page-btn');
+    const deletePageBtn= document.getElementById('delete-page-btn');
+    const titleInput   = document.getElementById('page-title-input');
+    const contentInput = document.getElementById('page-content-input');
+
+    [newPageBtn, savePageBtn, deletePageBtn].forEach(btn => {
+      if (!btn) return;
+      btn.disabled = !canEditPages;
+      btn.setAttribute('aria-disabled', (!canEditPages).toString());
+    });
+
+    if (titleInput)  titleInput.readOnly  = !canEditPages;
+    if (contentInput) contentInput.readOnly = !canEditPages;
+  },
+
   // ── Auth ────────────────────────────────────────────────────────────
   showAuthScreen() {
     this.show('auth-screen');
@@ -103,6 +147,74 @@ const ui = {
     });
 
     this.refreshIcons();
+  },
+
+  renderMemberList(members, currentUserId, canManageMembers) {
+    const list = document.getElementById('member-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (members.length === 0) {
+      list.innerHTML = '<li class="empty-hint">Aucun membre</li>';
+      return;
+    }
+
+    const roleLabels = {
+      owner:  'Propriétaire',
+      admin:  'Admin',
+      editor: 'Éditeur',
+      viewer: 'Lecteur',
+    };
+
+    members.forEach(member => {
+      const li = document.createElement('li');
+      li.className = 'member-item';
+
+      const meta = document.createElement('div');
+      meta.className = 'member-meta';
+
+      const name = document.createElement('span');
+      name.className = 'member-name';
+      name.textContent = member.name;
+
+      const email = document.createElement('span');
+      email.className = 'member-email';
+      email.textContent = member.email;
+
+      const role = document.createElement('span');
+      role.className = 'member-role';
+      role.textContent = roleLabels[member.role] || member.role;
+
+      meta.appendChild(name);
+      meta.appendChild(email);
+      meta.appendChild(role);
+
+      const actions = document.createElement('div');
+      actions.className = 'member-actions';
+
+      const memberId = parseInt(member.user_id);
+      const isSelf = memberId === currentUserId;
+      const isOwner = member.role === 'owner';
+
+      if (isSelf) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Quitter';
+        btn.dataset.action = 'leave';
+        btn.dataset.userId = memberId;
+        actions.appendChild(btn);
+      } else if (canManageMembers && !isOwner) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-danger';
+        btn.textContent = 'Retirer';
+        btn.dataset.action = 'remove';
+        btn.dataset.userId = memberId;
+        actions.appendChild(btn);
+      }
+
+      li.appendChild(meta);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
   },
 
   // ── Page view ────────────────────────────────────────────────────────

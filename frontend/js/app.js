@@ -85,6 +85,8 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   state.currentUser        = null;
   state.workspaces         = [];
   state.currentWorkspaceId = null;
+  state.currentWorkspaceRole = null;
+  state.members            = [];
   state.pages              = [];
   state.currentPageId      = null;
   
@@ -168,10 +170,42 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // ── Workspaces ──────────────────────────────────────────────────────
+function roleCanEditPages(role) {
+  return ['owner', 'admin', 'editor'].includes(role);
+}
+
+function roleCanManageMembers(role) {
+  return ['owner', 'admin'].includes(role);
+}
+
+function resolveCurrentRole(workspace, members) {
+  if (workspace && workspace.role) return workspace.role;
+  const me = members.find(m => parseInt(m.user_id) === state.currentUser.id);
+  return me ? me.role : 'viewer';
+}
+
 async function loadWorkspaces() {
   const data = await api.workspaces.list();
   state.workspaces = data.workspaces;
   ui.renderWorkspaceList(state.workspaces, state.currentWorkspaceId);
+}
+
+async function loadMembers(workspaceId, workspace) {
+  const data = await api.members.list(workspaceId);
+  state.members = data.members;
+
+  ui.clearError('invite-error');
+
+  const role = resolveCurrentRole(workspace, state.members);
+  state.currentWorkspaceRole = role;
+
+  ui.setWorkspaceRole(role);
+  ui.toggleInviteForm(roleCanManageMembers(role));
+  ui.renderMemberList(state.members, state.currentUser.id, roleCanManageMembers(role));
+  ui.setWorkspaceActions({
+    canDeleteWorkspace: role === 'owner',
+    canEditPages: roleCanEditPages(role),
+  });
 }
 
 async function selectWorkspace(id) {
@@ -186,6 +220,7 @@ async function selectWorkspace(id) {
   if (dashboardBtn) dashboardBtn.classList.remove('active');
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
+  await loadMembers(id, workspace);
 }
 
 // Clic sur un item de la liste — délégation d'événement
@@ -211,9 +246,67 @@ document.getElementById('delete-workspace-btn').addEventListener('click', async 
 
   await api.workspaces.delete(state.currentWorkspaceId);
   state.currentWorkspaceId = null;
+  state.currentWorkspaceRole = null;
+  state.members            = [];
   state.pages              = [];
   await loadWorkspaces();
   ui.showEmptyState();
+});
+
+// ── Membres ─────────────────────────────────────────────────────────
+document.getElementById('invite-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId) return;
+
+  ui.clearError('invite-error');
+  const email = ui.val('invite-email');
+  const role  = document.getElementById('invite-role').value;
+
+  if (!email) {
+    ui.showError('invite-error', 'Email requis.');
+    return;
+  }
+
+  try {
+    await api.members.add(state.currentWorkspaceId, email, role);
+    ui.clearVal('invite-email');
+    await loadMembers(
+      state.currentWorkspaceId,
+      state.workspaces.find(w => w.id === state.currentWorkspaceId)
+    );
+  } catch (err) {
+    const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
+    ui.showError('invite-error', msg);
+  }
+});
+
+document.getElementById('member-list').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn || !state.currentWorkspaceId) return;
+
+  const userId = parseInt(btn.dataset.userId);
+  const action = btn.dataset.action;
+  const isSelf = userId === state.currentUser.id;
+
+  if (action === 'remove' && !confirm('Retirer ce membre du workspace ?')) return;
+  if (action === 'leave' && !confirm('Quitter ce workspace ?')) return;
+
+  await api.members.remove(state.currentWorkspaceId, userId);
+
+  if (isSelf) {
+    state.currentWorkspaceId = null;
+    state.currentWorkspaceRole = null;
+    state.members = [];
+    state.pages = [];
+    await loadWorkspaces();
+    ui.showEmptyState();
+    return;
+  }
+
+  await loadMembers(
+    state.currentWorkspaceId,
+    state.workspaces.find(w => w.id === state.currentWorkspaceId)
+  );
 });
 
 // ── Pages ────────────────────────────────────────────────────────────

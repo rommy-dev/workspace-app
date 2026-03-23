@@ -28,7 +28,9 @@ class PageController
     // POST /api/workspaces/{workspaceId}/pages
     public function store(array $params): void
     {
-        if (!$this->resolveWorkspaceAccess((int) $params['workspaceId'])) return;
+        $workspaceId = (int) $params['workspaceId'];
+        if (!$this->resolveWorkspaceAccess($workspaceId)) return;
+        if (!$this->requirePageWriteAccess($workspaceId)) return;
 
         $body = $this->getJsonBody();
 
@@ -62,16 +64,12 @@ class PageController
     // PUT /api/workspaces/{workspaceId}/pages/{id}
     public function update(array $params): void
     {
-        if (!$this->resolveWorkspaceAccess((int) $params['workspaceId'])) return;
+        $workspaceId = (int) $params['workspaceId'];
+        if (!$this->resolveWorkspaceAccess($workspaceId)) return;
+        if (!$this->requirePageWriteAccess($workspaceId)) return;
 
         $page = $this->resolvePage((int) $params['id'], (int) $params['workspaceId']);
         if ($page === null) return;
-
-        // Seul l'auteur de la page peut la modifier
-        if ($page['owner_id'] !== $_SESSION['user_id']) {
-            $this->respond(403, ['error' => 'Seul l\'auteur peut modifier cette page.']);
-            return;
-        }
 
         $body = $this->getJsonBody();
 
@@ -93,15 +91,12 @@ class PageController
     // DELETE /api/workspaces/{workspaceId}/pages/{id}
     public function destroy(array $params): void
     {
-        if (!$this->resolveWorkspaceAccess((int) $params['workspaceId'])) return;
+        $workspaceId = (int) $params['workspaceId'];
+        if (!$this->resolveWorkspaceAccess($workspaceId)) return;
+        if (!$this->requirePageWriteAccess($workspaceId)) return;
 
         $page = $this->resolvePage((int) $params['id'], (int) $params['workspaceId']);
         if ($page === null) return;
-
-        if ($page['owner_id'] !== $_SESSION['user_id']) {
-            $this->respond(403, ['error' => 'Seul l\'auteur peut supprimer cette page.']);
-            return;
-        }
 
         $this->pageModel->delete((int) $params['id']);
         http_response_code(204);
@@ -120,6 +115,23 @@ class PageController
 
         if (!$this->workspaceModel->userHasAccess($workspaceId, $_SESSION['user_id'])) {
             $this->respond(403, ['error' => 'Accès non autorisé à ce workspace.']);
+            return false;
+        }
+
+        return true;
+    }
+
+    private function requirePageWriteAccess(int $workspaceId): bool
+    {
+        $role = $this->workspaceModel->getUserRole($workspaceId, $_SESSION['user_id']);
+
+        if ($role === null) {
+            $this->respond(403, ['error' => 'Accès non autorisé à ce workspace.']);
+            return false;
+        }
+
+        if (!in_array($role, ['owner', 'admin', 'editor'], true)) {
+            $this->respond(403, ['error' => 'Permissions insuffisantes pour modifier les pages.']);
             return false;
         }
 

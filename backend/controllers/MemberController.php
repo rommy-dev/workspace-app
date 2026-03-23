@@ -25,7 +25,28 @@ class MemberController
         $workspace = $this->resolveWorkspace((int) $params['id']);
         if ($workspace === null) return;
 
-        $members = $this->memberModel->findAllByWorkspace((int) $params['id']);
+        $workspaceId = (int) $params['id'];
+        $members = $this->memberModel->findAllByWorkspace($workspaceId);
+
+        // Ajoute le propriétaire dans la liste
+        $owner = $this->userModel->findById((int) $workspace['owner_id']);
+        if ($owner !== null) {
+            // Évite les doublons au cas où
+            $members = array_values(array_filter(
+                $members,
+                fn ($member) => (int) $member['user_id'] !== (int) $owner['id']
+            ));
+
+            array_unshift($members, [
+                'id'         => null,
+                'role'       => 'owner',
+                'created_at' => $workspace['created_at'],
+                'user_id'    => $owner['id'],
+                'name'       => $owner['name'],
+                'email'      => $owner['email'],
+            ]);
+        }
+
         $this->respond(200, ['members' => $members]);
     }
 
