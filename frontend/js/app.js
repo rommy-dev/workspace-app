@@ -6,10 +6,28 @@ async function init() {
     state.currentUser = data.user;
     ui.showAppScreen(data.user);
     await loadWorkspaces();
+    // Affiche le dashboard par défaut au démarrage
     await loadDashboard();
   } catch {
     // Pas de session active — on affiche l'écran de connexion
     ui.showAuthScreen();
+  }
+}
+
+// ── Fermeture de page ──────────────────────────────────────────────────────
+function closeCurrentPage() {
+  // Ferme l'onglet/la fenêtre si possible
+  if (window.opener) {
+    // Si la fenêtre a été ouverte par une autre, on peut la fermer
+    window.close();
+  } else {
+    // Sinon, on redirige vers une page blanche ou on ferme si c'est le seul onglet
+    try {
+      window.close();
+    } catch (e) {
+      // Si on ne peut pas fermer, on redirige vers about:blank
+      window.location.href = 'about:blank';
+    }
   }
 }
 
@@ -27,6 +45,8 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     ui.clearError('login-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
+    // Affiche le dashboard par défaut après connexion
+    await loadDashboard();
   } catch (err) {
     ui.showError('login-error', err.message);
   }
@@ -47,6 +67,8 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     ui.clearError('register-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
+    // Affiche le dashboard par défaut après inscription
+    await loadDashboard();
   } catch (err) {
     // Affiche les erreurs de validation champ par champ si disponibles
     const msg = err.errors
@@ -58,12 +80,24 @@ document.getElementById('register-btn').addEventListener('click', async () => {
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await api.auth.logout();
+  
+  // Réinitialise l'état complet
   state.currentUser        = null;
   state.workspaces         = [];
   state.currentWorkspaceId = null;
   state.pages              = [];
   state.currentPageId      = null;
+  
+  // Ferme la page active et retourne à l'état initial
+  ui.showEmptyState();
+  
+  // Affiche l'écran d'authentification
   ui.showAuthScreen();
+  
+  // Ferme la page active après déconnexion
+  setTimeout(() => {
+    closeCurrentPage();
+  }, 500); // Délai pour permettre la déconnexion complète
 });
 
 // ── Toggle mot de passe (icône œil) ─────────────────────────────────
