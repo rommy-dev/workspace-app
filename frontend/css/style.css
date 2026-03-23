@@ -128,6 +128,7 @@ button:hover { background: #f0f0f0; }
   flex-direction: column;
   padding: 1rem 0;
   flex-shrink: 0;
+  transition: all 0.2s ease-in-out;
 }
 
 #user-info {
@@ -196,12 +197,17 @@ button:hover { background: #f0f0f0; }
   justify-content: center;
   cursor: pointer;
   z-index: 5;
+  transition: all 0.2s ease-in-out;
 }
 
 .sidebar-toggle svg { 
   width: 16px; 
   height: 16px; 
-  border: 1px solid red;
+}
+
+.rotate {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }
 
 .workspace-item {
@@ -224,8 +230,13 @@ button:hover { background: #f0f0f0; }
   text-transform: uppercase;
 }
 
-body.sidebar-collapsed #sidebar { width: 72px; }
-body.sidebar-collapsed #sidebar-toggle { left: 72px; }
+.icon-sidebar-toggle {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+body.sidebar-collapsed #sidebar { width: 72px; transition: all 0.2s ease-in-out;}
+body.sidebar-collapsed #sidebar-toggle { left: 72px; transition: all 0.2s ease-in-out;}
 body.sidebar-collapsed #user-name { display: none; }
 body.sidebar-collapsed #sidebar-header { justify-content: center; }
 body.sidebar-collapsed #sidebar-header .label-full { display: none; }
