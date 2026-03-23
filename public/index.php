@@ -121,6 +121,36 @@ $router->delete('/api/workspaces/{workspaceId}/pages/{id}',
     [Controllers\PageController::class, 'destroy'],
     [AuthMiddleware::class]);
 
+    // ── Commentaires ──────────────────────────────────────────────────
+$router->get('/api/workspaces/{workspaceId}/pages/{pageId}/comments',
+    [Controllers\CommentController::class, 'index'],
+    [AuthMiddleware::class]);
+
+$router->post('/api/workspaces/{workspaceId}/pages/{pageId}/comments',
+    [Controllers\CommentController::class, 'store'],
+    [AuthMiddleware::class]);
+
+$router->put('/api/workspaces/{workspaceId}/pages/{pageId}/comments/{id}',
+    [Controllers\CommentController::class, 'update'],
+    [AuthMiddleware::class]);
+
+$router->delete('/api/workspaces/{workspaceId}/pages/{pageId}/comments/{id}',
+    [Controllers\CommentController::class, 'destroy'],
+    [AuthMiddleware::class]);
+
+// ── Membres du workspace ──────────────────────────────────────────
+$router->get('/api/workspaces/{id}/members',
+    [Controllers\MemberController::class, 'index'],
+    [AuthMiddleware::class]);
+
+$router->post('/api/workspaces/{id}/members',
+    [Controllers\MemberController::class, 'store'],
+    [AuthMiddleware::class]);
+
+$router->delete('/api/workspaces/{id}/members/{userId}',
+    [Controllers\MemberController::class, 'destroy'],
+    [AuthMiddleware::class]);
+
 $router->dispatch(
     $_SERVER['REQUEST_METHOD'],
     $uriPath
