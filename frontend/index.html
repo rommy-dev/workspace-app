@@ -64,13 +64,19 @@
       </div>
 
       <div id="sidebar-header">
-        <h2>
-          <span class="label-full">Workspaces</span>
-          <span class="label-short">Ws</span>
-        </h2>
-        <button id="new-workspace-btn">
-          <i data-lucide="plus" class="icon"></i>
+        <button id="dashboard-btn" class="sidebar-link">
+          <i data-lucide="layout-dashboard" class="icon"></i>
+          Dashboard
         </button>
+        <div class="workspace-sidebar-header">
+          <h2>
+            <span class="label-full">Workspaces</span>
+            <span class="label-short">Ws</span>
+          </h2>
+          <button id="new-workspace-btn">
+            <i data-lucide="plus" class="icon"></i>
+          </button>
+        </div>
       </div>
 
       <ul id="workspace-list"></ul>
@@ -133,6 +139,39 @@
           </div>
         </div>
         <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
+      </div>
+
+      <!-- Vue dashboard -->
+      <div id="dashboard-view" class="hidden">
+        <h2 class="view-title">Dashboard</h2>
+
+        <!-- Stats globales -->
+        <div id="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stat-workspaces">—</span>
+            <span class="stat-label">Workspaces</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-pages">—</span>
+            <span class="stat-label">Pages</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-comments">—</span>
+            <span class="stat-label">Commentaires</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-collaborators">—</span>
+            <span class="stat-label">Collaborateurs</span>
+          </div>
+        </div>
+
+        <!-- Workspaces les plus actifs -->
+        <h3 class="section-title">Activité par workspace</h3>
+        <div id="workspace-stats-list"></div>
+
+        <!-- Activité récente -->
+        <h3 class="section-title">Activité récente</h3>
+        <ul id="activity-feed"></ul>
       </div>
 
     </main>
