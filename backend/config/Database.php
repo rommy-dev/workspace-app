@@ -26,19 +26,37 @@ class Database
 
     private static function createConnection(): PDO
     {
-        $envPath = __DIR__ . '/../.env';
+        $envDir = realpath(__DIR__ . '/..') ?: __DIR__ . '/..';
+        $appEnv = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? null);
 
-        if (!file_exists($envPath)) {
+        $envPath = $envDir . '/.env';
+        if ($appEnv === 'test' && file_exists($envDir . '/.env.test')) {
+            $envPath = $envDir . '/.env.test';
+        }
+
+        $env = file_exists($envPath) ? parse_ini_file($envPath) : [];
+
+        $envVar = static function (string $key): ?string {
+            $value = getenv($key);
+            return ($value === false) ? null : $value;
+        };
+
+        $hasEnvVars =
+            $envVar('DB_HOST') !== null ||
+            $envVar('DB_NAME') !== null ||
+            $envVar('DB_USER') !== null ||
+            $envVar('DB_PASS') !== null ||
+            $envVar('DB_PORT') !== null;
+
+        if (!$hasEnvVars && empty($env)) {
             throw new \RuntimeException('.env file not found at: ' . $envPath);
         }
 
-        $env = parse_ini_file($envPath);
-
-        $host   = $env['DB_HOST']    ?? 'localhost';
-        $dbname = $env['DB_NAME']    ?? '';
-        $user   = $env['DB_USER']    ?? 'root';
-        $pass   = $env['DB_PASS']    ?? '';
-        $port   = $env['DB_PORT']    ?? '3306';
+        $host   = $envVar('DB_HOST') ?? ($env['DB_HOST'] ?? 'localhost');
+        $dbname = $envVar('DB_NAME') ?? ($env['DB_NAME'] ?? '');
+        $user   = $envVar('DB_USER') ?? ($env['DB_USER'] ?? 'root');
+        $pass   = $envVar('DB_PASS') ?? ($env['DB_PASS'] ?? '');
+        $port   = $envVar('DB_PORT') ?? ($env['DB_PORT'] ?? '3306');
 
         $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 

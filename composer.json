@@ -3,7 +3,6 @@
     "description": "Backend PHP natif + MySQL + JS vanilla",
     "type": "project",
     "license": "MIT",
-    "require": {},
     "autoload": {
         "psr-4": {
             "Config\\":      "backend/config/",
@@ -12,5 +11,13 @@
             "Models\\":      "backend/models/",
             "Middleware\\":  "backend/middleware/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
     }
 }
