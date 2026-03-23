@@ -77,6 +77,7 @@ const ui = {
   showWorkspaceView(workspace, pages) {
     this.hide('empty-state');
     this.hide('page-view');
+    this.hide('dashboard-view');
     this.show('workspace-view');
     this.text('workspace-title', workspace.name);
     this.renderPageList(pages);
@@ -106,6 +107,8 @@ const ui = {
   // ── Page view ────────────────────────────────────────────────────────
   showPageView(page) {
     this.hide('workspace-view');
+    this.hide('empty-state');
+    this.hide('dashboard-view');
     this.show('page-view');
     this.setVal('page-title-input', page.title);
     this.setVal('page-content-input', page.content || '');
@@ -116,6 +119,7 @@ const ui = {
     this.show('empty-state');
     this.hide('workspace-view');
     this.hide('page-view');
+    this.hide('dashboard-view');
   },
 
   // ── Dashboard view ─────────────────────────────────────────────────────────
