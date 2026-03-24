@@ -219,6 +219,86 @@ const ui = {
     });
   },
 
+  setCommentsCount(count) {
+    const el = document.getElementById('comments-count');
+    if (!el) return;
+    el.textContent = String(count ?? 0);
+  },
+
+  toggleCommentsPanel(show) {
+    const panel = document.getElementById('comments-panel');
+    if (panel) panel.classList.toggle('hidden', !show);
+
+    const btn = document.getElementById('comments-btn');
+    if (btn) {
+      btn.classList.toggle('is-open', show);
+      btn.setAttribute('aria-expanded', show ? 'true' : 'false');
+    }
+  },
+
+  renderComments(comments, currentUserId, canDeleteAny) {
+    const list = document.getElementById('comments-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (!comments || comments.length === 0) {
+      list.innerHTML = '<li class="empty-hint">Aucun commentaire</li>';
+      return;
+    }
+
+    comments.forEach(comment => {
+      const li = document.createElement('li');
+      li.className = 'comment-item';
+      li.dataset.id = comment.id;
+
+      const meta = document.createElement('div');
+      meta.className = 'comment-meta';
+
+      const author = document.createElement('span');
+      author.className = 'comment-author';
+      author.textContent = comment.author_name || 'Utilisateur';
+
+      const date = document.createElement('span');
+      const createdAt = comment.created_at ? new Date(comment.created_at) : null;
+      date.textContent = createdAt
+        ? createdAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+        : '';
+
+      meta.appendChild(author);
+      meta.appendChild(date);
+
+      const body = document.createElement('div');
+      body.className = 'comment-body';
+      body.textContent = comment.content;
+
+      const actions = document.createElement('div');
+      actions.className = 'comment-actions';
+
+      const isAuthor = parseInt(comment.user_id) === currentUserId;
+      if (isAuthor) {
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Éditer';
+        editBtn.dataset.action = 'edit';
+        editBtn.dataset.id = comment.id;
+        actions.appendChild(editBtn);
+      }
+
+      if (isAuthor || canDeleteAny) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-danger';
+        deleteBtn.textContent = 'Supprimer';
+        deleteBtn.dataset.action = 'delete';
+        deleteBtn.dataset.id = comment.id;
+        actions.appendChild(deleteBtn);
+      }
+
+      li.appendChild(meta);
+      li.appendChild(body);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+  },
+
   // ── Page view ────────────────────────────────────────────────────────
   showPageView(page) {
     this.hide('workspace-view');

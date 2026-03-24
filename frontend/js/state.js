@@ -8,4 +8,7 @@ const state = {
   members:            [],    // membres du workspace courant
   pages:              [],    // pages du workspace courant
   currentPageId:      null,
+  comments:           [],    // commentaires de la page courante
+  commentsOpen:       false,
+  editingCommentId:   null,
 };

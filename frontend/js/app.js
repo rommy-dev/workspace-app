@@ -103,6 +103,10 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   state.members            = [];
   state.pages              = [];
   state.currentPageId      = null;
+  state.comments           = [];
+  state.commentsOpen       = false;
+  state.editingCommentId   = null;
+  resetCommentsState();
   
   // Ferme la page active et retourne à l'état initial
   ui.showEmptyState();
@@ -225,6 +229,7 @@ async function loadMembers(workspaceId, workspace) {
 async function selectWorkspace(id) {
   state.currentWorkspaceId = id;
   state.currentPageId      = null;
+  resetCommentsState();
 
   const data = await api.pages.list(id);
   state.pages = data.pages;
@@ -263,6 +268,7 @@ document.getElementById('delete-workspace-btn').addEventListener('click', async 
   state.currentWorkspaceRole = null;
   state.members            = [];
   state.pages              = [];
+  resetCommentsState();
   await loadWorkspaces();
   ui.showEmptyState();
 });
@@ -312,6 +318,7 @@ document.getElementById('member-list').addEventListener('click', async (e) => {
     state.currentWorkspaceRole = null;
     state.members = [];
     state.pages = [];
+    resetCommentsState();
     await loadWorkspaces();
     ui.showEmptyState();
     return;
@@ -323,6 +330,48 @@ document.getElementById('member-list').addEventListener('click', async (e) => {
   );
 });
 
+// ── Commentaires helpers ────────────────────────────────────────────
+function canDeleteAnyComments() {
+  return state.currentWorkspaceRole === 'owner';
+}
+
+function setCommentFormMode(isEditing) {
+  const cancelBtn = document.getElementById('comment-cancel-btn');
+  const submitBtn = document.getElementById('comment-submit-btn');
+  if (cancelBtn) cancelBtn.classList.toggle('hidden', !isEditing);
+  if (submitBtn) submitBtn.textContent = isEditing ? 'Mettre à jour' : 'Publier';
+}
+
+function clearCommentForm() {
+  ui.clearVal('comment-input');
+  ui.clearError('comment-error');
+  setCommentFormMode(false);
+}
+
+function resetCommentsState() {
+  state.comments = [];
+  state.commentsOpen = false;
+  state.editingCommentId = null;
+  ui.setCommentsCount(0);
+  ui.renderComments([], state.currentUser ? state.currentUser.id : 0, canDeleteAnyComments());
+  ui.toggleCommentsPanel(false);
+  clearCommentForm();
+}
+
+async function loadComments(workspaceId, pageId) {
+  try {
+    const data = await api.comments.list(workspaceId, pageId);
+    state.comments = data.comments;
+    ui.setCommentsCount(state.comments.length);
+    ui.renderComments(state.comments, state.currentUser.id, canDeleteAnyComments());
+  } catch (err) {
+    state.comments = [];
+    ui.setCommentsCount(0);
+    ui.renderComments([], state.currentUser.id, canDeleteAnyComments());
+    ui.showError('comment-error', err.message);
+  }
+}
+
 // ── Pages ────────────────────────────────────────────────────────────
 document.getElementById('page-list').addEventListener('click', async (e) => {
   const item = e.target.closest('.page-item');
@@ -332,6 +381,8 @@ document.getElementById('page-list').addEventListener('click', async (e) => {
   const data   = await api.pages.get(state.currentWorkspaceId, pageId);
   state.currentPageId = pageId;
   ui.showPageView(data.page);
+  resetCommentsState();
+  await loadComments(state.currentWorkspaceId, pageId);
 });
 
 document.getElementById('new-page-btn').addEventListener('click', async () => {
@@ -368,6 +419,7 @@ document.getElementById('delete-page-btn').addEventListener('click', async () =>
 
   await api.pages.delete(state.currentWorkspaceId, state.currentPageId);
   state.currentPageId = null;
+  resetCommentsState();
 
   const data      = await api.pages.list(state.currentWorkspaceId);
   state.pages     = data.pages;
@@ -377,6 +429,7 @@ document.getElementById('delete-page-btn').addEventListener('click', async () =>
 
 document.getElementById('back-to-workspace-btn').addEventListener('click', () => {
   state.currentPageId = null;
+  resetCommentsState();
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
 });
@@ -398,20 +451,85 @@ async function loadDashboard() {
 document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
 
 // ── Comments ───────────────────────────────────────────────────────────
-document.getElementById('comments-btn').addEventListener('click', () => {
-  const commentContent = document.querySelector('.comment-content');
-  const commentsBtn = document.getElementById('comments-btn');
-  
-  if (commentContent.classList.contains('hidden')) {
-    // Afficher les commentaires
-    commentContent.classList.remove('hidden');
-    commentsBtn.style.background = '#1a1a1a';
-    commentsBtn.querySelector('.icon').style.color = 'white';
-  } else {
-    // Masquer les commentaires
-    commentContent.classList.add('hidden');
-    commentsBtn.style.background = '#f0f0f0';
-    commentsBtn.querySelector('.icon').style.color = '#333';
+document.getElementById('comments-btn').addEventListener('click', async () => {
+  if (!state.currentWorkspaceId || !state.currentPageId) return;
+
+  state.commentsOpen = !state.commentsOpen;
+  ui.toggleCommentsPanel(state.commentsOpen);
+
+  if (state.commentsOpen && state.comments.length === 0) {
+    await loadComments(state.currentWorkspaceId, state.currentPageId);
+  }
+});
+
+document.getElementById('comments-close-btn').addEventListener('click', () => {
+  state.commentsOpen = false;
+  ui.toggleCommentsPanel(false);
+});
+
+document.getElementById('comment-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId || !state.currentPageId) return;
+
+  ui.clearError('comment-error');
+  const content = ui.val('comment-input');
+
+  if (!content) {
+    ui.showError('comment-error', 'Le commentaire ne peut pas être vide.');
+    return;
+  }
+
+  try {
+    if (state.editingCommentId) {
+      await api.comments.update(
+        state.currentWorkspaceId,
+        state.currentPageId,
+        state.editingCommentId,
+        content
+      );
+    } else {
+      await api.comments.create(state.currentWorkspaceId, state.currentPageId, content);
+    }
+
+    state.editingCommentId = null;
+    clearCommentForm();
+    await loadComments(state.currentWorkspaceId, state.currentPageId);
+  } catch (err) {
+    const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
+    ui.showError('comment-error', msg);
+  }
+});
+
+document.getElementById('comment-cancel-btn').addEventListener('click', () => {
+  state.editingCommentId = null;
+  clearCommentForm();
+});
+
+document.getElementById('comments-list').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn || !state.currentWorkspaceId || !state.currentPageId) return;
+
+  const commentId = parseInt(btn.dataset.id);
+  const action = btn.dataset.action;
+
+  if (action === 'edit') {
+    const comment = state.comments.find(c => c.id === commentId);
+    if (!comment) return;
+    state.editingCommentId = commentId;
+    ui.setVal('comment-input', comment.content);
+    setCommentFormMode(true);
+    document.getElementById('comment-input').focus();
+    return;
+  }
+
+  if (action === 'delete') {
+    if (!confirm('Supprimer ce commentaire ?')) return;
+    await api.comments.delete(state.currentWorkspaceId, state.currentPageId, commentId);
+    if (state.editingCommentId === commentId) {
+      state.editingCommentId = null;
+      clearCommentForm();
+    }
+    await loadComments(state.currentWorkspaceId, state.currentPageId);
   }
 });
 

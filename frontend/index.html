@@ -175,14 +175,35 @@
         <div class="page-content-container">
           <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
           <div class="comments-btn-container">
-            <button id="comments-btn" class="comments-btn">
+            <button id="comments-btn" class="comments-btn" type="button" aria-expanded="false" aria-controls="comments-panel">
               <i data-lucide="message-circle" class="icon"></i>
             </button>
             <!-- Nombre de toutes les commentaires de cette page -->
-            <span class="comments-count">45</span>
-            <div class="hidden comment-content">
-              <!-- Ajouter ici les commentaires avec les actions de modération
-              Un interface fluide avec de bon design pattern UI/UX -->
+            <span id="comments-count" class="comments-count">0</span>
+            <div id="comments-panel" class="comment-content hidden" role="dialog" aria-label="Commentaires">
+              <div class="comments-panel-header">
+                <div>
+                  <h3>Commentaires</h3>
+                  <p class="comments-subtitle">Sur cette page</p>
+                </div>
+                <button id="comments-close-btn" class="btn-close" type="button" aria-label="Fermer">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+
+              <ul id="comments-list" class="comments-list"></ul>
+
+              <form id="comment-form" class="comment-form">
+                <textarea id="comment-input" placeholder="Écrire un commentaire..."></textarea>
+                <div class="comment-form-actions">
+                  <button id="comment-cancel-btn" type="button" class="hidden">Annuler</button>
+                  <button id="comment-submit-btn" type="submit">
+                    <i data-lucide="send" class="icon"></i>
+                    Publier
+                  </button>
+                </div>
+                <div class="form-error" id="comment-error"></div>
+              </form>
             </div>
           </div>
         </div>

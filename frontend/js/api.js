@@ -58,6 +58,14 @@ const api = {
     delete: (wsId, id)          => request('DELETE', `/workspaces/${wsId}/pages/${id}`),
   },
 
+  // ── Commentaires ─────────────────────────────────────────────────
+  comments: {
+    list:   (wsId, pageId)           => request('GET',    `/workspaces/${wsId}/pages/${pageId}/comments`),
+    create: (wsId, pageId, content)  => request('POST',   `/workspaces/${wsId}/pages/${pageId}/comments`, { content }),
+    update: (wsId, pageId, id, content) => request('PUT', `/workspaces/${wsId}/pages/${pageId}/comments/${id}`, { content }),
+    delete: (wsId, pageId, id)       => request('DELETE', `/workspaces/${wsId}/pages/${pageId}/comments/${id}`),
+  },
+
   // ── Membres ──────────────────────────────────────────────────────
   members: {
     list:   (wsId)             => request('GET',    `/workspaces/${wsId}/members`),
