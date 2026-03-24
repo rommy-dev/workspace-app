@@ -246,6 +246,8 @@ const ui = {
       return;
     }
 
+    const maxWords = 10;
+
     comments.forEach(comment => {
       const li = document.createElement('li');
       li.className = 'comment-item';
@@ -269,7 +271,26 @@ const ui = {
 
       const body = document.createElement('div');
       body.className = 'comment-body';
-      body.textContent = comment.content;
+      const content = (comment.content || '').trim();
+      const words = content.length ? content.split(/\s+/) : [];
+      const isTruncated = words.length > maxWords;
+      const shortText = isTruncated
+        ? words.slice(0, maxWords).join(' ') + '…'
+        : content;
+
+      body.textContent = shortText;
+      if (isTruncated) {
+        body.dataset.full = content;
+        body.dataset.short = shortText;
+        body.dataset.expanded = 'false';
+      }
+
+      const toggle = document.createElement('button');
+      toggle.className = 'comment-toggle';
+      toggle.dataset.action = 'toggle';
+      toggle.dataset.id = comment.id;
+      toggle.type = 'button';
+      toggle.textContent = isTruncated ? 'Voir plus' : '';
 
       const actions = document.createElement('div');
       actions.className = 'comment-actions';
@@ -294,6 +315,9 @@ const ui = {
 
       li.appendChild(meta);
       li.appendChild(body);
+      if (isTruncated) {
+        li.appendChild(toggle);
+      }
       li.appendChild(actions);
       list.appendChild(li);
     });

@@ -512,6 +512,17 @@ document.getElementById('comments-list').addEventListener('click', async (e) => 
   const commentId = parseInt(btn.dataset.id);
   const action = btn.dataset.action;
 
+  if (action === 'toggle') {
+    const item = btn.closest('.comment-item');
+    const body = item ? item.querySelector('.comment-body') : null;
+    if (!body) return;
+    const expanded = body.dataset.expanded === 'true';
+    body.textContent = expanded ? body.dataset.short : body.dataset.full;
+    body.dataset.expanded = expanded ? 'false' : 'true';
+    btn.textContent = expanded ? 'Voir plus' : 'Voir moins';
+    return;
+  }
+
   if (action === 'edit') {
     const comment = state.comments.find(c => c.id === commentId);
     if (!comment) return;
