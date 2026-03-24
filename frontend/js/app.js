@@ -178,7 +178,7 @@ function initSidebarToggle() {
 }
 
 // ── Modals ──────────────────────────────────────────────────────────
-const modalIds = ['workspace-modal', 'page-modal'];
+const modalIds = ['workspace-modal', 'page-modal', 'workspace-delete-modal', 'page-delete-modal'];
 
 function isModalOpen(id) {
   const modal = document.getElementById(id);
@@ -336,7 +336,12 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
 
 document.getElementById('delete-workspace-btn').addEventListener('click', async () => {
   if (!state.currentWorkspaceId) return;
-  if (!confirm('Supprimer ce workspace et toutes ses pages ?')) return;
+  openModal('workspace-delete-modal');
+});
+
+document.getElementById('workspace-delete-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId) return;
 
   await api.workspaces.delete(state.currentWorkspaceId);
   state.currentWorkspaceId = null;
@@ -346,6 +351,7 @@ document.getElementById('delete-workspace-btn').addEventListener('click', async 
   resetCommentsState();
   await loadWorkspaces();
   ui.showEmptyState();
+  closeModal('workspace-delete-modal');
 });
 
 // ── Membres ─────────────────────────────────────────────────────────
@@ -510,7 +516,12 @@ document.getElementById('save-page-btn').addEventListener('click', async () => {
 
 document.getElementById('delete-page-btn').addEventListener('click', async () => {
   if (!state.currentPageId) return;
-  if (!confirm('Supprimer cette page ?')) return;
+  openModal('page-delete-modal');
+});
+
+document.getElementById('page-delete-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentPageId) return;
 
   await api.pages.delete(state.currentWorkspaceId, state.currentPageId);
   state.currentPageId = null;
@@ -520,6 +531,7 @@ document.getElementById('delete-page-btn').addEventListener('click', async () =>
   state.pages     = data.pages;
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
+  closeModal('page-delete-modal');
 });
 
 document.getElementById('back-to-workspace-btn').addEventListener('click', () => {

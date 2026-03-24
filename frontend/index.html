@@ -286,6 +286,42 @@
     </div>
   </div>
 
+  <div id="workspace-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="workspace-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="workspace-delete-title">Supprimer le workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="workspace-delete-form" class="modal-body">
+        <p>Cette action est définitive. Toutes les pages du workspace seront supprimées.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-delete-title">Supprimer la page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="page-delete-form" class="modal-body">
+        <p>La page sera supprimée définitivement.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts — dans l'ordre de dépendance -->
   <script id="lucide-script" src="/js/lucide.min.js"></script>
   <script src="/js/api.js"></script>

@@ -124,6 +124,13 @@ button[disabled]:hover { background: white; }
 }
 .btn-secondary:hover { background: #eaeaea; }
 
+.btn-danger-solid {
+  background: #c0392b;
+  color: white;
+  border-color: #c0392b;
+}
+.btn-danger-solid:hover { background: #a93226; }
+
 .icon {
   width: 16px;
   height: 16px;
@@ -191,6 +198,11 @@ button[disabled]:hover { background: white; }
   display: flex;
   flex-direction: column;
   gap: .75rem;
+}
+
+.modal-body p {
+  color: #555;
+  line-height: 1.4;
 }
 
 .modal-actions {
