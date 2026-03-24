@@ -245,6 +245,47 @@
     </main>
   </div>
 
+  <!-- ── Modals ─────────────────────────────────────────────────────── -->
+  <div id="workspace-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="workspace-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="workspace-modal-title">Nouveau workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="workspace-form" class="modal-body">
+        <label class="form-label" for="workspace-name-input">Nom du workspace</label>
+        <input type="text" id="workspace-name-input" placeholder="Ex : Marketing Q2" maxlength="60" autocomplete="off">
+        <div class="form-error" id="workspace-modal-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-modal-title">Nouvelle page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="page-form" class="modal-body">
+        <label class="form-label" for="page-title-modal-input">Titre de la page</label>
+        <input type="text" id="page-title-modal-input" placeholder="Ex : Plan du sprint" maxlength="80" autocomplete="off">
+        <div class="form-error" id="page-modal-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts — dans l'ordre de dépendance -->
   <script id="lucide-script" src="/js/lucide.min.js"></script>
   <script src="/js/api.js"></script>

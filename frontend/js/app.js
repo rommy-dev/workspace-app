@@ -177,6 +177,64 @@ function initSidebarToggle() {
   });
 }
 
+// ── Modals ──────────────────────────────────────────────────────────
+const modalIds = ['workspace-modal', 'page-modal'];
+
+function isModalOpen(id) {
+  const modal = document.getElementById(id);
+  return modal && !modal.classList.contains('hidden');
+}
+
+function updateModalState() {
+  const anyOpen = modalIds.some(id => isModalOpen(id));
+  document.body.classList.toggle('modal-open', anyOpen);
+}
+
+function openModal(modalId, inputId, errorId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+
+  if (errorId) ui.clearError(errorId);
+  if (inputId) {
+    ui.setVal(inputId, '');
+    const input = document.getElementById(inputId);
+    if (input) setTimeout(() => input.focus(), 0);
+  }
+
+  updateModalState();
+  ui.refreshIcons();
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  updateModalState();
+}
+
+function initModals() {
+  modalIds.forEach((modalId) => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal(modalId);
+    });
+
+    modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(modalId));
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    modalIds.forEach(id => closeModal(id));
+  });
+}
+
 // ── Tabs auth ───────────────────────────────────────────────────────
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -251,12 +309,29 @@ document.getElementById('workspace-list').addEventListener('click', (e) => {
   if (item) selectWorkspace(parseInt(item.dataset.id));
 });
 
-document.getElementById('new-workspace-btn').addEventListener('click', async () => {
-  const name = prompt('Nom du workspace :');
-  if (!name || name.trim().length < 2) return;
+document.getElementById('new-workspace-btn').addEventListener('click', () => {
+  openModal('workspace-modal', 'workspace-name-input', 'workspace-modal-error');
+});
 
-  await api.workspaces.create(name.trim());
-  await loadWorkspaces();
+document.getElementById('workspace-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  ui.clearError('workspace-modal-error');
+
+  const name = ui.val('workspace-name-input');
+  if (!name || name.length < 2) {
+    ui.showError('workspace-modal-error', 'Le nom doit contenir au moins 2 caractères.');
+    return;
+  }
+
+  try {
+    await api.workspaces.create(name.trim());
+    await loadWorkspaces();
+    closeModal('workspace-modal');
+    ui.clearVal('workspace-name-input');
+  } catch (err) {
+    const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
+    ui.showError('workspace-modal-error', msg);
+  }
 });
 
 document.getElementById('delete-workspace-btn').addEventListener('click', async () => {
@@ -386,15 +461,35 @@ document.getElementById('page-list').addEventListener('click', async (e) => {
 });
 
 document.getElementById('new-page-btn').addEventListener('click', async () => {
-  const title = prompt('Titre de la page :');
-  if (!title || title.trim().length < 1) return;
+  if (!state.currentWorkspaceId) return;
+  openModal('page-modal', 'page-title-modal-input', 'page-modal-error');
+});
 
-  await api.pages.create(state.currentWorkspaceId, title.trim(), '');
-  const data = await api.pages.list(state.currentWorkspaceId);
-  state.pages = data.pages;
+document.getElementById('page-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId) return;
 
-  const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
-  ui.showWorkspaceView(workspace, state.pages);
+  ui.clearError('page-modal-error');
+  const title = ui.val('page-title-modal-input');
+
+  if (!title || title.length < 1) {
+    ui.showError('page-modal-error', 'Le titre est requis.');
+    return;
+  }
+
+  try {
+    await api.pages.create(state.currentWorkspaceId, title.trim(), '');
+    const data = await api.pages.list(state.currentWorkspaceId);
+    state.pages = data.pages;
+
+    const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+    ui.showWorkspaceView(workspace, state.pages);
+    closeModal('page-modal');
+    ui.clearVal('page-title-modal-input');
+  } catch (err) {
+    const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
+    ui.showError('page-modal-error', msg);
+  }
 });
 
 document.getElementById('save-page-btn').addEventListener('click', async () => {
@@ -564,3 +659,4 @@ init();
 initPasswordToggles();
 initLucideIcons();
 initSidebarToggle();
+initModals();
