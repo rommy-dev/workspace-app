@@ -188,7 +188,15 @@ function initSidebarToggle() {
 }
 
 // ── Modals ──────────────────────────────────────────────────────────
-const modalIds = ['workspace-modal', 'page-modal', 'workspace-delete-modal', 'page-delete-modal', 'logout-modal'];
+const modalIds = [
+  'workspace-modal',
+  'page-modal',
+  'workspace-delete-modal',
+  'page-delete-modal',
+  'logout-modal',
+  'member-remove-modal'
+];
+let pendingMemberRemoval = null;
 
 function isModalOpen(id) {
   const modal = document.getElementById(id);
@@ -222,6 +230,11 @@ function closeModal(modalId) {
   if (!modal) return;
   modal.classList.add('hidden');
   modal.setAttribute('aria-hidden', 'true');
+  if (modalId === 'member-remove-modal') {
+    pendingMemberRemoval = null;
+    const label = document.getElementById('member-remove-name');
+    if (label) label.textContent = 'ce membre';
+  }
   updateModalState();
 }
 
@@ -399,7 +412,14 @@ document.getElementById('member-list').addEventListener('click', async (e) => {
   const action = btn.dataset.action;
   const isSelf = userId === state.currentUser.id;
 
-  if (action === 'remove' && !confirm('Retirer ce membre du workspace ?')) return;
+  if (action === 'remove') {
+    const member = state.members.find(m => parseInt(m.user_id) === userId);
+    const label = document.getElementById('member-remove-name');
+    if (label) label.textContent = member?.name || member?.email || 'ce membre';
+    pendingMemberRemoval = { userId, isSelf };
+    openModal('member-remove-modal');
+    return;
+  }
   if (action === 'leave' && !confirm('Quitter ce workspace ?')) return;
 
   await api.members.remove(state.currentWorkspaceId, userId);
@@ -419,6 +439,32 @@ document.getElementById('member-list').addEventListener('click', async (e) => {
     state.currentWorkspaceId,
     state.workspaces.find(w => w.id === state.currentWorkspaceId)
   );
+});
+
+document.getElementById('member-remove-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId || !pendingMemberRemoval) return;
+
+  const { userId, isSelf } = pendingMemberRemoval;
+  await api.members.remove(state.currentWorkspaceId, userId);
+
+  if (isSelf) {
+    state.currentWorkspaceId = null;
+    state.currentWorkspaceRole = null;
+    state.members = [];
+    state.pages = [];
+    resetCommentsState();
+    await loadWorkspaces();
+    ui.showEmptyState();
+    closeModal('member-remove-modal');
+    return;
+  }
+
+  await loadMembers(
+    state.currentWorkspaceId,
+    state.workspaces.find(w => w.id === state.currentWorkspaceId)
+  );
+  closeModal('member-remove-modal');
 });
 
 // ── Commentaires helpers ────────────────────────────────────────────

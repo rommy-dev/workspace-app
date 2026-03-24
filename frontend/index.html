@@ -340,6 +340,25 @@
     </div>
   </div>
 
+  <div id="member-remove-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="member-remove-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="member-remove-title">Retirer un collaborateur</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="member-remove-form" class="modal-body">
+        <p>Retirer <strong id="member-remove-name">ce membre</strong> du workspace ?</p>
+        <p>Il perdra l'accès et ses droits.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Retirer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts — dans l'ordre de dépendance -->
   <script id="lucide-script" src="/js/lucide.min.js"></script>
   <script src="/js/api.js"></script>
