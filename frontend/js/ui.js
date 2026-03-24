@@ -157,7 +157,7 @@ const ui = {
     list.innerHTML = '';
 
     if (members.length === 0) {
-      list.innerHTML = '<li class="empty-hint">Aucun membre</li>';
+      list.innerHTML = '<div class="empty-hint">Aucun membre</div>';
       return;
     }
 
@@ -169,17 +169,24 @@ const ui = {
     };
 
     members.forEach(member => {
-      const li = document.createElement('li');
-      li.className = 'member-item';
+      const card = document.createElement('div');
+      card.className = 'member-card';
 
-      const meta = document.createElement('div');
-      meta.className = 'member-meta';
+      const memberInfo = document.createElement('div');
+      memberInfo.className = 'member-info';
 
-      const name = document.createElement('span');
+      const avatar = document.createElement('div');
+      avatar.className = 'member-avatar';
+      avatar.textContent = member.name.charAt(0).toUpperCase();
+
+      const details = document.createElement('div');
+      details.className = 'member-details';
+
+      const name = document.createElement('div');
       name.className = 'member-name';
       name.textContent = member.name;
 
-      const email = document.createElement('span');
+      const email = document.createElement('div');
       email.className = 'member-email';
       email.textContent = member.email;
 
@@ -187,9 +194,12 @@ const ui = {
       role.className = `member-role role-badge ${member.role}`;
       role.textContent = roleLabels[member.role] || member.role;
 
-      meta.appendChild(name);
-      meta.appendChild(email);
-      meta.appendChild(role);
+      details.appendChild(name);
+      details.appendChild(email);
+      details.appendChild(role);
+
+      memberInfo.appendChild(avatar);
+      memberInfo.appendChild(details);
 
       const actions = document.createElement('div');
       actions.className = 'member-actions';
@@ -213,9 +223,9 @@ const ui = {
         actions.appendChild(btn);
       }
 
-      li.appendChild(meta);
-      li.appendChild(actions);
-      list.appendChild(li);
+      card.appendChild(memberInfo);
+      card.appendChild(actions);
+      list.appendChild(card);
     });
   },
 
