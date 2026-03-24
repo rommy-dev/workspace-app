@@ -397,6 +397,24 @@ async function loadDashboard() {
 // Bouton dashboard dans la sidebar
 document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
 
+// ── Comments ───────────────────────────────────────────────────────────
+document.getElementById('comments-btn').addEventListener('click', () => {
+  const commentContent = document.querySelector('.comment-content');
+  const commentsBtn = document.getElementById('comments-btn');
+  
+  if (commentContent.classList.contains('hidden')) {
+    // Afficher les commentaires
+    commentContent.classList.remove('hidden');
+    commentsBtn.style.background = '#1a1a1a';
+    commentsBtn.querySelector('.icon').style.color = 'white';
+  } else {
+    // Masquer les commentaires
+    commentContent.classList.add('hidden');
+    commentsBtn.style.background = '#f0f0f0';
+    commentsBtn.querySelector('.icon').style.color = '#333';
+  }
+});
+
 // ── Collaboration ───────────────────────────────────────────────────────
 // Bouton pour afficher la section des collaborateurs
 document.getElementById('new-collab-btn').addEventListener('click', () => {

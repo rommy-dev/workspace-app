@@ -543,9 +543,133 @@ body.sidebar-collapsed .btn-logout span { display: none; }
 }
 
 #page-title-input { flex: 1; font-size: 1.1rem; font-weight: 500; }
-#page-content-input {
+
+.page-content-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: calc(100vh - 130px);
   width: 100%;
-  height: calc(100vh - 160px);
+}
+
+.comments-btn-container {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.comments-btn {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.comments-btn:hover {
+  background: #e0e0e0;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.comments-btn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive pour mobile - bouton de commentaires */
+@media (max-width: 768px) {
+  .comments-btn-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 100;
+  }
+  
+  .comments-btn {
+    width: 50px;
+    height: 50px;
+    background: #1a1a1a;
+    border-color: #000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .comments-btn:hover {
+    background: #333;
+  }
+  
+  .comments-btn .icon {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+}
+
+@media (max-width: 480px) {
+  .comments-btn-container {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+  
+  .comments-btn {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .comments-btn .icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .comment-content {
+    right: 1rem;
+  }
+}
+
+.comments-count {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  font-size: .85rem;
+  color: #333;
+  border: none;
+  background: #A7C7E7;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment-content {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  width: 400px;
+  height: 300px;
+  max-width: calc(100vw - 136px);
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: .95rem;
+  line-height: 1.6;
+  resize: none;
+  overflow: auto;
+  z-index: -1;
+}
+
+#page-content-input {
+  height: 100%;
+  width: 100%;
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 1rem;

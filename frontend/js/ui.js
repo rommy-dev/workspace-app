@@ -269,7 +269,7 @@ const ui = {
           <span class="ws-stat-counts">
             ${ws.pages_count} page${ws.pages_count !== 1 ? 's' : ''}
             · ${ws.comments_count} commentaire${ws.comments_count !== 1 ? 's' : ''}
-            · ${ws.members_count} membre${ws.members_count !== 1 ? 's' : ''}
+            · ${ws.members_count+1} membre${ws.members_count !== 1 ? 's' : ''}
           </span>
         </div>
         <div class="ws-stat-bar-track">

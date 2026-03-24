@@ -172,7 +172,20 @@
           </button>
           </div>
         </div>
-        <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
+        <div class="page-content-container">
+          <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
+          <div class="comments-btn-container">
+            <button id="comments-btn" class="comments-btn">
+              <i data-lucide="message-circle" class="icon"></i>
+            </button>
+            <!-- Nombre de toutes les commentaires de cette page -->
+            <span class="comments-count">45</span>
+            <div class="hidden comment-content">
+              <!-- Ajouter ici les commentaires avec les actions de modération
+              Un interface fluide avec de bon design pattern UI/UX -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Vue dashboard -->
