@@ -363,6 +363,11 @@ body.sidebar-collapsed .workspace-item .ws-name { display: none; }
 body.sidebar-collapsed .workspace-item .ws-initials { display: flex; }
 body.sidebar-collapsed .btn-logout { justify-content: center; }
 body.sidebar-collapsed .btn-logout span { display: none; }
+.sidebar-collapsed button#logout-btn.btn-logout{
+  width: 50px;
+  height: 50px;
+  margin-left: -5px;
+}
 
 .workspace-item {
   padding: .5rem 1rem;
