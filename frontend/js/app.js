@@ -92,7 +92,7 @@ document.getElementById('register-password').addEventListener('keypress', (e) =>
   }
 }); 
 
-document.getElementById('logout-btn').addEventListener('click', async () => {
+async function performLogout() {
   await api.auth.logout();
   
   // Réinitialise l'état complet
@@ -118,6 +118,16 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   setTimeout(() => {
     closeCurrentPage();
   }, 500); // Délai pour permettre la déconnexion complète
+}
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  openModal('logout-modal');
+});
+
+document.getElementById('logout-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  await performLogout();
+  closeModal('logout-modal');
 });
 
 // ── Toggle mot de passe (icône œil) ─────────────────────────────────
@@ -178,7 +188,7 @@ function initSidebarToggle() {
 }
 
 // ── Modals ──────────────────────────────────────────────────────────
-const modalIds = ['workspace-modal', 'page-modal', 'workspace-delete-modal', 'page-delete-modal'];
+const modalIds = ['workspace-modal', 'page-modal', 'workspace-delete-modal', 'page-delete-modal', 'logout-modal'];
 
 function isModalOpen(id) {
   const modal = document.getElementById(id);

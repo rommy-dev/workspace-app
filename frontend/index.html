@@ -322,6 +322,24 @@
     </div>
   </div>
 
+  <div id="logout-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="logout-modal-title">Se déconnecter</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="logout-form" class="modal-body">
+        <p>Tu vas être déconnecté de cette session.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Se déconnecter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts — dans l'ordre de dépendance -->
   <script id="lucide-script" src="/js/lucide.min.js"></script>
   <script src="/js/api.js"></script>
