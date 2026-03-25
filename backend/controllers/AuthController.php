@@ -60,9 +60,10 @@ class AuthController
         $this->respond(201, [
             'message' => 'Compte créé avec succès.',
             'user'    => [
-                'id'    => $userId,
-                'email' => strtolower(trim($body['email'])),
-                'name'  => trim($body['name']),
+                'id'         => $userId,
+                'email'      => strtolower(trim($body['email'])),
+                'name'       => trim($body['name']),
+                'avatar_url' => null,
             ],
         ]);
     }
@@ -92,9 +93,10 @@ class AuthController
         $this->respond(200, [
             'message' => 'Connexion réussie.',
             'user'    => [
-                'id'    => $user['id'],
-                'email' => $user['email'],
-                'name'  => $user['name'],
+                'id'         => $user['id'],
+                'email'      => $user['email'],
+                'name'       => $user['name'],
+                'avatar_url' => $user['avatar_url'],
             ],
         ]);
     }

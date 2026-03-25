@@ -41,6 +41,34 @@ const api = {
     me:       ()                => request('GET',  '/auth/me'),
   },
 
+  // ── Profil utilisateur ─────────────────────────────────────────────
+  profile: {
+    get:            (id)                              => request('GET',  `/users/${id}`),
+    me:             ()                                => request('GET',  '/profile'),
+    update:         (name, email, avatarUrl)          => request('PUT',  '/profile', { name, email, avatar_url: avatarUrl }),
+    uploadAvatar:   (file)                            => {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      return fetch(BASE_URL + '/profile/avatar', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      }).then(res => {
+        if (res.status === 204) return null;
+        return res.json().then(data => {
+          if (!res.ok) {
+            const err = new Error(data.error || 'Erreur serveur');
+            err.status = res.status;
+            err.errors = data.errors || null;
+            throw err;
+          }
+          return data;
+        });
+      });
+    },
+    updatePassword: (currentPassword, newPassword)   => request('PUT',  '/profile/password', { current_password: currentPassword, new_password: newPassword }),
+  },
+
   // ── Workspaces ────────────────────────────────────────────────────
   workspaces: {
     list:   ()           => request('GET',    '/workspaces'),

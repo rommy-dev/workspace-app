@@ -419,4 +419,56 @@ const ui = {
       feed.appendChild(li);
     });
   },
+
+  // ── Profile view ──────────────────────────────────────────────────────────
+  showProfile() {
+    this.hide('empty-state');
+    this.hide('workspace-view');
+    this.hide('page-view');
+    this.hide('dashboard-view');
+    this.show('profile-view');
+  },
+
+  renderProfile(user) {
+    // Profil card
+    this.text('profile-card-name', user.name);
+    this.text('profile-card-email', user.email);
+
+    const createdDate = new Date(user.created_at).toLocaleDateString('fr-FR', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+    this.text('profile-card-created', `Membre depuis ${createdDate}`);
+
+    // Avatar: display image if URL exists, otherwise show fallback
+    const avatarImg = document.getElementById('profile-avatar-img');
+    const avatarFallback = document.getElementById('profile-avatar-fallback');
+    
+    if (user.avatar_url) {
+      // Support both local paths (avatars/...) and external URLs
+      const src = user.avatar_url.startsWith('http') 
+        ? user.avatar_url 
+        : '/' + user.avatar_url;
+      avatarImg.src = src;
+      avatarImg.style.display = 'block';
+      avatarFallback.classList.remove('active');
+    } else {
+      avatarImg.style.display = 'none';
+      avatarFallback.classList.add('active');
+      avatarFallback.textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    // Remplir les formulaires
+    this.setVal('profile-name-input', user.name);
+    this.setVal('profile-email-input', user.email);
+    this.clearVal('profile-avatar-file');
+    
+    // Nettoyer les formulaires de password
+    this.clearVal('profile-current-password');
+    this.clearVal('profile-new-password');
+    this.clearVal('profile-confirm-password');
+    
+    // Nettoyer les erreurs
+    this.clearError('profile-info-error');
+    this.clearError('profile-password-error');
+  },
 };

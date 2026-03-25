@@ -68,6 +68,10 @@
           <i data-lucide="layout-dashboard" class="icon"></i>
           <span class="label-full">Dashboard</span>
         </button>
+        <button id="profile-btn" class="sidebar-link" aria-label="Profil" title="Profil">
+          <i data-lucide="user" class="icon"></i>
+          <span class="label-full">Profil</span>
+        </button>
         <div class="workspace-sidebar-header">
           <h2>
             <span class="label-full">Workspaces</span>
@@ -240,6 +244,67 @@
         <!-- Activité récente -->
         <h3 class="section-title">Activité récente</h3>
         <ul id="activity-feed"></ul>
+      </div>
+
+      <!-- Vue profil utilisateur -->
+      <div id="profile-view" class="hidden">
+        <h2 class="view-title">Profil</h2>
+
+        <!-- Profil card avec avatar et infos de base -->
+        <div id="profile-card" class="profile-card">
+          <div class="profile-avatar">
+            <img id="profile-avatar-img" alt="Avatar" src="">
+            <span id="profile-avatar-fallback" class="avatar-fallback"></span>
+          </div>
+          <div class="profile-info">
+            <h3 id="profile-card-name"></h3>
+            <p id="profile-card-email"></p>
+            <p id="profile-card-created" class="profile-metadata"></p>
+          </div>
+        </div>
+
+        <!-- Formulaire Infos (name, email, avatar_url) -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Informations</h3>
+          <form id="profile-info-form" class="profile-form">
+            <div class="form-input">
+              <label class="form-label" for="profile-name-input">Nom</label>
+              <input type="text" id="profile-name-input" placeholder="Votre nom" maxlength="100">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-email-input">Email</label>
+              <input type="email" id="profile-email-input" placeholder="votre@email.com">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-avatar-file">Avatar (JPG, PNG, GIF, WebP — max 5MB)</label>
+              <input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/gif,image/webp">
+              <small style="color: #999; font-size: 0.85rem;">Laissez vide pour garder l'avatar actuel</small>
+            </div>
+            <div class="form-error" id="profile-info-error"></div>
+            <button type="submit" class="btn-primary">Mettre à jour</button>
+          </form>
+        </div>
+
+        <!-- Formulaire Mot de passe -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Mot de passe</h3>
+          <form id="profile-password-form" class="profile-form">
+            <div class="form-input">
+              <label class="form-label" for="profile-current-password">Mot de passe actuel</label>
+              <input type="password" id="profile-current-password" placeholder="●●●●●●●●">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-new-password">Nouveau mot de passe</label>
+              <input type="password" id="profile-new-password" placeholder="●●●●●●●●">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-confirm-password">Confirmer le mot de passe</label>
+              <input type="password" id="profile-confirm-password" placeholder="●●●●●●●●">
+            </div>
+            <div class="form-error" id="profile-password-error"></div>
+            <button type="submit" class="btn-primary">Changer le mot de passe</button>
+          </form>
+        </div>
       </div>
 
     </main>

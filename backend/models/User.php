@@ -19,7 +19,7 @@ class User
     public function findByEmail(string $email): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT id, email, name, password_hash, created_at
+            'SELECT id, email, name, avatar_url, password_hash, created_at
              FROM users
              WHERE email = ?
              LIMIT 1'
@@ -36,7 +36,7 @@ class User
     public function findById(int $id): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT id, email, name, created_at
+            'SELECT id, email, name, avatar_url, created_at
              FROM users
              WHERE id = ?
              LIMIT 1'

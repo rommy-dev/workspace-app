@@ -630,6 +630,129 @@ async function loadDashboard() {
 // Bouton dashboard dans la sidebar
 document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
 
+// ── Profile ──────────────────────────────────────────────────────────
+// Charge et affiche le profil
+async function loadProfile() {
+  try {
+    const data = await api.profile.me();
+    ui.renderProfile(data.user);
+    ui.showProfile();
+    const profileBtn = document.getElementById('profile-btn');
+    if (profileBtn) profileBtn.classList.add('active');
+    // Désélectionne le workspace actif dans la sidebar
+    document.querySelectorAll('.workspace-item')
+      .forEach(el => el.classList.remove('active'));
+    // Enlever l'active du dashboard
+    const dashboardBtn = document.getElementById('dashboard-btn');
+    if (dashboardBtn) dashboardBtn.classList.remove('active');
+  } catch (err) {
+    alert('Erreur lors du chargement du profil: ' + err.message);
+  }
+}
+
+// Bouton profil dans la sidebar
+document.getElementById('profile-btn').addEventListener('click', loadProfile);
+
+// Formulaire Infos profile (name, email, avatar upload)
+document.getElementById('profile-info-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  ui.clearError('profile-info-error');
+
+  const name = ui.val('profile-name-input');
+  const email = ui.val('profile-email-input');
+  const avatarFileInput = document.getElementById('profile-avatar-file');
+  const avatarFile = avatarFileInput?.files?.[0];
+
+  // Validation client
+  if (!name || name.length < 2) {
+    ui.showError('profile-info-error', 'Le nom doit faire au moins 2 caractères.');
+    return;
+  }
+  if (!email) {
+    ui.showError('profile-info-error', 'L\'email est requis.');
+    return;
+  }
+
+  try {
+    let latestUser = null;
+
+    // 1. Upload avatar si fichier présent
+    if (avatarFile) {
+      const uploadData = await api.profile.uploadAvatar(avatarFile);
+      latestUser = uploadData.user;
+      ui.renderProfile(latestUser); // Refresh affichage avec nouvel avatar
+    }
+
+    // 2. Toujours mettre à jour nom/email
+    const updateData = await api.profile.update(name, email, latestUser?.avatar_url || state.currentUser?.avatar_url);
+    latestUser = updateData.user;
+
+    // Mettre à jour le state
+    state.currentUser = {
+      ...state.currentUser,
+      name: latestUser.name,
+      email: latestUser.email,
+      avatar_url: latestUser.avatar_url,
+    };
+    
+    // Mettre à jour la sidebar
+    ui.text('user-name', state.currentUser.name);
+    
+    // Rafraîchir l'affichage du profil
+    ui.renderProfile(latestUser);
+    
+    // Afficher message de succès
+    ui.showError('profile-info-error', 'Profil mis à jour avec succès.');
+    document.getElementById('profile-info-error').style.color = '#15803d';
+  } catch (err) {
+    console.error('Profile update error:', err);
+    const msg = err.errors
+      ? Object.values(err.errors).join(' ')
+      : err.message;
+    ui.showError('profile-info-error', msg);
+  }
+});
+
+// Formulaire Mot de passe
+document.getElementById('profile-password-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  ui.clearError('profile-password-error');
+
+  const currentPassword = ui.val('profile-current-password');
+  const newPassword = ui.val('profile-new-password');
+  const confirmPassword = ui.val('profile-confirm-password');
+
+  // Validation client
+  if (!currentPassword) {
+    ui.showError('profile-password-error', 'Veuillez entrer votre mot de passe actuel.');
+    return;
+  }
+  if (!newPassword || newPassword.length < 8) {
+    ui.showError('profile-password-error', 'Le nouveau mot de passe doit faire au moins 8 caractères.');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    ui.showError('profile-password-error', 'Les deux mots de passe ne correspondent pas.');
+    return;
+  }
+
+  try {
+    await api.profile.updatePassword(currentPassword, newPassword);
+    // Vider les champs
+    ui.clearVal('profile-current-password');
+    ui.clearVal('profile-new-password');
+    ui.clearVal('profile-confirm-password');
+    // Afficher un message de succès
+    ui.showError('profile-password-error', 'Mot de passe changé avec succès.');
+    document.getElementById('profile-password-error').style.color = '#15803d';
+  } catch (err) {
+    const msg = err.errors
+      ? Object.values(err.errors).join(' ')
+      : err.message;
+    ui.showError('profile-password-error', msg);
+  }
+});
+
 // ── Comments ───────────────────────────────────────────────────────────
 document.getElementById('comments-btn').addEventListener('click', async () => {
   if (!state.currentWorkspaceId || !state.currentPageId) return;

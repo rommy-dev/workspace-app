@@ -1,7 +1,7 @@
 // Source de vérité unique de l'app.
 // Jamais modifié directement depuis ui.js — seulement depuis app.js.
 const state = {
-  currentUser:        null,  // { id, name, email }
+  currentUser:        null,  // { id, name, email, avatar_url }
   workspaces:         [],    // tableau complet
   currentWorkspaceId: null,
   currentWorkspaceRole: null, // owner | admin | editor | viewer

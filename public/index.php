@@ -79,6 +79,13 @@ $router->post('/api/auth/login',    [Controllers\AuthController::class, 'login']
 $router->post('/api/auth/logout',   [Controllers\AuthController::class, 'logout'],  [AuthMiddleware::class]);
 $router->get('/api/auth/me',        [Controllers\AuthController::class, 'me'],      [AuthMiddleware::class]);
 
+// ── Profil utilisateur ─────────────────────────────────────────────
+$router->get('/api/users/{id}',     [Controllers\ProfileController::class, 'show'],           [AuthMiddleware::class]);
+$router->get('/api/profile',        [Controllers\ProfileController::class, 'me'],            [AuthMiddleware::class]);
+$router->put('/api/profile',        [Controllers\ProfileController::class, 'update'],        [AuthMiddleware::class]);
+$router->post('/api/profile/avatar', [Controllers\ProfileController::class, 'uploadAvatar'],  [AuthMiddleware::class]);
+$router->put('/api/profile/password', [Controllers\ProfileController::class, 'updatePassword'], [AuthMiddleware::class]);
+
 // ── Workspaces ─────────────────────────────────────────────────────
 $router->get('/api/workspaces',
     [Controllers\WorkspaceController::class, 'index'],
