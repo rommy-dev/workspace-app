@@ -359,6 +359,60 @@
     </div>
   </div>
 
+  <div id="member-leave-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="member-leave-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="member-leave-title">Quitter le workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="member-leave-form" class="modal-body">
+        <p>Tu es sur le point de quitter ce workspace.</p>
+        <p>Tu perdras l'accès et tes droits.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Quitter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="comment-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="comment-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="comment-delete-title">Supprimer le commentaire</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="comment-delete-form" class="modal-body">
+        <p>Cette action est définitive.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-title-required-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-title-required-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-title-required-title">Titre requis</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Merci d'indiquer un titre avant de sauvegarder.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" data-modal-close>Compris</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts — dans l'ordre de dépendance -->
   <script id="lucide-script" src="/js/lucide.min.js"></script>
   <script src="/js/api.js"></script>
