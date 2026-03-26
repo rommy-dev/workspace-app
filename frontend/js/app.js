@@ -47,6 +47,8 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     await loadWorkspaces();
     // Affiche le dashboard par défaut après connexion
     await loadDashboard();
+    // Afficher message de succès
+    ui.showNotification('Connexion réussie !');
   } catch (err) {
     ui.showError('login-error', err.message);
   }
@@ -76,6 +78,8 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     await loadWorkspaces();
     // Affiche le dashboard par défaut après inscription
     await loadDashboard();
+    // Afficher message de succès
+    ui.showNotification('Inscription réussie !');
   } catch (err) {
     // Affiche les erreurs de validation champ par champ si disponibles
     const msg = err.errors
@@ -94,6 +98,9 @@ document.getElementById('register-password').addEventListener('keypress', (e) =>
 
 async function performLogout() {
   await api.auth.logout();
+  
+  // Afficher message de succès avant de réinitialiser l'état
+  ui.showNotification('Déconnexion réussie !');
   
   // Réinitialise l'état complet
   state.currentUser        = null;
