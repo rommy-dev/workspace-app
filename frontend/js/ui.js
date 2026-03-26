@@ -458,7 +458,10 @@ const ui = {
       return;
     }
 
-    recent_activity.forEach(item => {
+    // Limiter à 10 activités les plus récentes
+    const limitedActivities = recent_activity.slice(0, 10);
+
+    limitedActivities.forEach(item => {
       const li  = document.createElement('li');
       li.className = 'activity-item';
       const icon = item.type === 'page' ? '📄' : '💬';
