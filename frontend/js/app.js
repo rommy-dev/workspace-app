@@ -707,9 +707,11 @@ document.getElementById('profile-info-form').addEventListener('submit', async (e
     // Rafraîchir l'affichage du profil
     ui.renderProfile(latestUser);
     
-    // Afficher message de succès
-    ui.showError('profile-info-error', 'Profil mis à jour avec succès.');
-    document.getElementById('profile-info-error').style.color = '#15803d';
+    // Afficher message de succès avec popup
+    ui.showNotification('Profil mis à jour avec succès.');
+    
+    // Nettoyer les erreurs
+    ui.clearError('profile-info-error');
   } catch (err) {
     console.error('Profile update error:', err);
     const msg = err.errors
@@ -748,9 +750,12 @@ document.getElementById('profile-password-form').addEventListener('submit', asyn
     ui.clearVal('profile-current-password');
     ui.clearVal('profile-new-password');
     ui.clearVal('profile-confirm-password');
-    // Afficher un message de succès
-    ui.showError('profile-password-error', 'Mot de passe changé avec succès.');
-    document.getElementById('profile-password-error').style.color = '#15803d';
+    
+    // Afficher message de succès avec popup
+    ui.showNotification('Mot de passe changé avec succès.');
+    
+    // Nettoyer les erreurs
+    ui.clearError('profile-password-error');
   } catch (err) {
     const msg = err.errors
       ? Object.values(err.errors).join(' ')

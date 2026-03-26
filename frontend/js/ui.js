@@ -24,6 +24,40 @@ const ui = {
     }
   },
 
+  // ── Notification Popup ─────────────────────────────────────
+  showNotification(message, duration = 3000) {
+    const popup = document.getElementById('notification-popup');
+    const messageEl = document.getElementById('notification-message');
+    
+    if (!popup || !messageEl) return;
+    
+    messageEl.textContent = message;
+    popup.classList.remove('hidden');
+    
+    // Force reflow pour activer la transition
+    popup.offsetHeight;
+    
+    popup.classList.add('show');
+    this.refreshIcons();
+    
+    // Masquer automatiquement après la durée spécifiée
+    setTimeout(() => {
+      this.hideNotification();
+    }, duration);
+  },
+  
+  hideNotification() {
+    const popup = document.getElementById('notification-popup');
+    if (!popup) return;
+    
+    popup.classList.remove('show');
+    
+    // Attendre la fin de la transition avant de cacher complètement
+    setTimeout(() => {
+      popup.classList.add('hidden');
+    }, 300);
+  },
+
   setWorkspaceRole(role) {
     const el = document.getElementById('current-role-badge');
     if (!el) return;
