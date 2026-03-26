@@ -333,6 +333,9 @@ async function selectWorkspace(id) {
   const workspace = state.workspaces.find(w => w.id === id);
   const dashboardBtn = document.getElementById('dashboard-btn');
   if (dashboardBtn) dashboardBtn.classList.remove('active');
+  // Cacher le profil quand on arrive sur un workspace
+  const profileBtn = document.getElementById('profile-btn');
+  if (profileBtn) profileBtn.classList.remove('active');
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
   await loadMembers(id, workspace);
@@ -625,6 +628,9 @@ async function loadDashboard() {
   // Désélectionne le workspace actif dans la sidebar
   document.querySelectorAll('.workspace-item')
     .forEach(el => el.classList.remove('active'));
+  // Cacher le profil quand on arrive sur le dashboard
+  const profileBtn = document.getElementById('profile-btn');
+  if (profileBtn) profileBtn.classList.remove('active');
 }
 
 // Bouton dashboard dans la sidebar
