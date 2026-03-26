@@ -709,7 +709,7 @@ document.getElementById('profile-info-form').addEventListener('submit', async (e
     };
     
     // Mettre à jour la sidebar
-    ui.text('user-name', state.currentUser.name);
+    ui.showAppScreen(state.currentUser);
     
     // Rafraîchir l'affichage du profil
     ui.renderProfile(latestUser);

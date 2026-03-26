@@ -114,6 +114,24 @@ const ui = {
     this.hide('auth-screen');
     this.show('app-screen');
     this.text('user-name', user.name);
+    
+    // Gérer l'avatar dans la sidebar
+    const avatarImg = document.getElementById('user-avatar-img');
+    const avatarFallback = document.getElementById('user-avatar-fallback');
+    
+    if (user.avatar_url) {
+      // Support both local paths (avatars/...) and external URLs
+      const src = user.avatar_url.startsWith('http') 
+        ? user.avatar_url 
+        : '/' + user.avatar_url;
+      avatarImg.src = src;
+      avatarImg.style.display = 'block';
+      avatarFallback.classList.remove('active');
+    } else {
+      avatarImg.style.display = 'none';
+      avatarFallback.classList.add('active');
+      avatarFallback.textContent = user.name.charAt(0).toUpperCase();
+    }
   },
 
   // ── Sidebar ─────────────────────────────────────────────────────────
