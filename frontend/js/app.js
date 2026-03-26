@@ -341,8 +341,8 @@ async function selectWorkspace(id) {
   const dashboardBtn = document.getElementById('dashboard-btn');
   if (dashboardBtn) dashboardBtn.classList.remove('active');
   // Cacher le profil quand on arrive sur un workspace
-  const profileBtn = document.getElementById('profile-btn');
-  if (profileBtn) profileBtn.classList.remove('active');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.remove('active');
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
   await loadMembers(id, workspace);
@@ -636,8 +636,8 @@ async function loadDashboard() {
   document.querySelectorAll('.workspace-item')
     .forEach(el => el.classList.remove('active'));
   // Cacher le profil quand on arrive sur le dashboard
-  const profileBtn = document.getElementById('profile-btn');
-  if (profileBtn) profileBtn.classList.remove('active');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.remove('active');
 }
 
 // Bouton dashboard dans la sidebar
@@ -650,8 +650,9 @@ async function loadProfile() {
     const data = await api.profile.me();
     ui.renderProfile(data.user);
     ui.showProfile();
-    const profileBtn = document.getElementById('profile-btn');
-    if (profileBtn) profileBtn.classList.add('active');
+    // Marquer le user-info comme actif
+    const userInfo = document.getElementById('user-info');
+    if (userInfo) userInfo.classList.add('active');
     // Désélectionne le workspace actif dans la sidebar
     document.querySelectorAll('.workspace-item')
       .forEach(el => el.classList.remove('active'));
@@ -663,8 +664,8 @@ async function loadProfile() {
   }
 }
 
-// Bouton profil dans la sidebar
-document.getElementById('profile-btn').addEventListener('click', loadProfile);
+// Lien vers le profil depuis le user-info de la sidebar
+document.getElementById('user-info').addEventListener('click', loadProfile);
 
 // Formulaire Infos profile (name, email, avatar upload)
 document.getElementById('profile-info-form').addEventListener('submit', async (e) => {

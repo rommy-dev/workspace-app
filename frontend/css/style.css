@@ -243,6 +243,30 @@ body.modal-open {
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: .5rem;
   text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#user-info:hover {
+  background-color: #f8f9fa;
+}
+
+#user-info.clickable:active {
+  background-color: #e9ecef;
+}
+
+#user-info.active {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+#user-info.active .user-meta span {
+  color: white;
+}
+
+#user-info.active .avatar-fallback {
+  background: white;
+  color: #1a1a1a;
 }
 
 .user-avatar {
@@ -1259,6 +1283,7 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   display: flex;
   align-items: flex-start;
   gap: 2rem;
+  margin-top: -1.8rem;
 }
 
 .profile-avatar {
