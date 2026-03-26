@@ -159,6 +159,7 @@ const ui = {
     this.hide('empty-state');
     this.hide('page-view');
     this.hide('dashboard-view');
+    this.hide('profile-view');
     this.show('workspace-view');
     this.text('workspace-title', workspace.name);
     this.renderPageList(pages);
@@ -372,6 +373,7 @@ const ui = {
     this.hide('workspace-view');
     this.hide('empty-state');
     this.hide('dashboard-view');
+    this.hide('profile-view');
     this.show('page-view');
     this.setVal('page-title-input', page.title);
     this.setVal('page-content-input', page.content || '');
@@ -383,6 +385,7 @@ const ui = {
     this.hide('workspace-view');
     this.hide('page-view');
     this.hide('dashboard-view');
+    this.hide('profile-view');
   },
 
   // ── Dashboard view ─────────────────────────────────────────────────────────
@@ -390,6 +393,7 @@ const ui = {
     this.hide('empty-state');
     this.hide('workspace-view');
     this.hide('page-view');
+    this.hide('profile-view');
     this.show('dashboard-view');
   },
 
