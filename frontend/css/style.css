@@ -1289,6 +1289,8 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
 .profile-avatar {
   position: relative;
   flex-shrink: 0;
+  width: 100px;
+  height: 100px;
 }
 
 .profile-avatar img {
@@ -1310,10 +1312,35 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   justify-content: center;
   font-size: 2rem;
   font-weight: 600;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .avatar-fallback.active {
   display: flex;
+}
+
+/* Styles spécifiques pour l'avatar de la sidebar */
+.sidebar-avatar-fallback {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 1.2rem !important;
+  background: #1a1a1a !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  border-radius: 50% !important;
+}
+
+.sidebar-avatar-fallback.active {
+  display: flex !important;
+}
+
+/* Styles pour l'état actif du user-info */
+#user-info.active .sidebar-avatar-fallback {
+  background: white !important;
+  color: #1a1a1a !important;
 }
 
 .profile-info {
