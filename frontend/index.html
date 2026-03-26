@@ -299,15 +299,30 @@
           <form id="profile-password-form" class="profile-form">
             <div class="form-input">
               <label class="form-label" for="profile-current-password">Mot de passe actuel</label>
-              <input type="password" id="profile-current-password" placeholder="●●●●●●●●">
+              <div class="input-with-icon">
+                <input type="password" id="profile-current-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-current-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
             <div class="form-input">
               <label class="form-label" for="profile-new-password">Nouveau mot de passe</label>
-              <input type="password" id="profile-new-password" placeholder="●●●●●●●●">
+              <div class="input-with-icon">
+                <input type="password" id="profile-new-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-new-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
             <div class="form-input">
               <label class="form-label" for="profile-confirm-password">Confirmer le mot de passe</label>
-              <input type="password" id="profile-confirm-password" placeholder="●●●●●●●●">
+              <div class="input-with-icon">
+                <input type="password" id="profile-confirm-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-confirm-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
             </div>
             <div class="form-error" id="profile-password-error"></div>
             <button type="submit" class="btn-primary">Changer le mot de passe</button>

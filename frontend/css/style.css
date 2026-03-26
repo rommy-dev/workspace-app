@@ -54,7 +54,8 @@ body {
   padding-right: 2.4rem;
 }
 
-.auth-form .toggle-password {
+.auth-form .toggle-password,
+.profile-form .toggle-password {
   position: absolute;
   right: .6rem;
   top: 50%;
@@ -71,7 +72,7 @@ body {
 }
 
 .toggle-password:hover { color: #ccc; background: transparent; }
-.toggle-password:focus { outline: none; }
+.toggle-password:focus { outline: none; border: 2px solid #555;}
 .toggle-password svg, .toggle-password i[data-lucide] { width: 18px; height: 18px; }
 
 input, textarea, select {
