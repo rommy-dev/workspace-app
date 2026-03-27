@@ -128,13 +128,13 @@ async function performLogout() {
 }
 
 document.getElementById('logout-btn').addEventListener('click', () => {
-  openModal('logout-modal');
+  ui.openModal('logout-modal');
 });
 
 document.getElementById('logout-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   await performLogout();
-  closeModal('logout-modal');
+  ui.closeModal('logout-modal');
 });
 
 // ── Toggle mot de passe (icône œil) ─────────────────────────────────
@@ -220,63 +220,23 @@ function updateModalState() {
   document.body.classList.toggle('modal-open', anyOpen);
 }
 
-function openModal(modalId, inputId, errorId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden', 'false');
-
-  if (errorId) ui.clearError(errorId);
-  if (inputId) {
-    ui.setVal(inputId, '');
-    const input = document.getElementById(inputId);
-    if (input) setTimeout(() => input.focus(), 0);
-  }
-
-  updateModalState();
-  ui.refreshIcons();
-}
-
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden', 'true');
-  if (modalId === 'member-remove-modal') {
-    pendingMemberRemoval = null;
-    const label = document.getElementById('member-remove-name');
-    if (label) label.textContent = 'ce membre';
-  }
-  if (modalId === 'member-leave-modal') {
-    pendingMemberLeave = null;
-  }
-  if (modalId === 'comment-delete-modal') {
-    pendingCommentDelete = null;
-  }
-  if (modalId === 'page-title-required-modal') {
-    const titleInput = document.getElementById('page-title-input');
-    if (titleInput) setTimeout(() => titleInput.focus(), 0);
-  }
-  updateModalState();
-}
-
 function initModals() {
   modalIds.forEach((modalId) => {
     const modal = document.getElementById(modalId);
     if (!modal) return;
 
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal(modalId);
+      if (e.target === modal) ui.closeModal(modalId);
     });
 
     modal.querySelectorAll('[data-modal-close]').forEach(btn => {
-      btn.addEventListener('click', () => closeModal(modalId));
+      btn.addEventListener('click', () => ui.closeModal(modalId));
     });
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    modalIds.forEach(id => closeModal(id));
+    modalIds.forEach(id => ui.closeModal(id));
   });
 }
 
@@ -358,7 +318,7 @@ document.getElementById('workspace-list').addEventListener('click', (e) => {
 });
 
 document.getElementById('new-workspace-btn').addEventListener('click', () => {
-  openModal('workspace-modal', 'workspace-name-input', 'workspace-modal-error');
+  ui.openModal('workspace-modal', 'workspace-name-input', 'workspace-modal-error');
 });
 
 document.getElementById('workspace-form').addEventListener('submit', async (e) => {
@@ -374,7 +334,7 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
   try {
     await api.workspaces.create(name.trim());
     await loadWorkspaces();
-    closeModal('workspace-modal');
+    ui.closeModal('workspace-modal');
     ui.clearVal('workspace-name-input');
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
@@ -384,7 +344,7 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
 
 document.getElementById('delete-workspace-btn').addEventListener('click', async () => {
   if (!state.currentWorkspaceId) return;
-  openModal('workspace-delete-modal');
+  ui.openModal('workspace-delete-modal');
 });
 
 document.getElementById('workspace-delete-form').addEventListener('submit', async (e) => {
@@ -399,7 +359,7 @@ document.getElementById('workspace-delete-form').addEventListener('submit', asyn
   resetCommentsState();
   await loadWorkspaces();
   ui.showEmptyState();
-  closeModal('workspace-delete-modal');
+  ui.closeModal('workspace-delete-modal');
 });
 
 // ── Membres ─────────────────────────────────────────────────────────
@@ -462,12 +422,12 @@ document.getElementById('member-list').addEventListener('click', async (e) => {
     const label = document.getElementById('member-remove-name');
     if (label) label.textContent = member?.name || member?.email || 'ce membre';
     pendingMemberRemoval = { userId, isSelf };
-    openModal('member-remove-modal');
+    ui.openModal('member-remove-modal');
     return;
   }
   if (action === 'leave') {
     pendingMemberLeave = { userId };
-    openModal('member-leave-modal');
+    ui.openModal('member-leave-modal');
     return;
   }
 
@@ -480,7 +440,7 @@ document.getElementById('member-remove-form').addEventListener('submit', async (
 
   const { userId, isSelf } = pendingMemberRemoval;
   await finalizeMemberRemoval(userId, isSelf);
-  closeModal('member-remove-modal');
+  ui.closeModal('member-remove-modal');
 });
 
 document.getElementById('member-leave-form').addEventListener('submit', async (e) => {
@@ -488,7 +448,7 @@ document.getElementById('member-leave-form').addEventListener('submit', async (e
   if (!state.currentWorkspaceId || !pendingMemberLeave) return;
 
   await finalizeMemberRemoval(pendingMemberLeave.userId, true);
-  closeModal('member-leave-modal');
+  ui.closeModal('member-leave-modal');
 });
 
 // ── Commentaires helpers ────────────────────────────────────────────
@@ -548,7 +508,7 @@ document.getElementById('page-list').addEventListener('click', async (e) => {
 
 document.getElementById('new-page-btn').addEventListener('click', async () => {
   if (!state.currentWorkspaceId) return;
-  openModal('page-modal', 'page-title-modal-input', 'page-modal-error');
+  ui.openModal('page-modal', 'page-title-modal-input', 'page-modal-error');
 });
 
 document.getElementById('page-form').addEventListener('submit', async (e) => {
@@ -570,7 +530,7 @@ document.getElementById('page-form').addEventListener('submit', async (e) => {
 
     const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
     ui.showWorkspaceView(workspace, state.pages);
-    closeModal('page-modal');
+    ui.closeModal('page-modal');
     ui.clearVal('page-title-modal-input');
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
@@ -585,7 +545,7 @@ document.getElementById('save-page-btn').addEventListener('click', async () => {
   const content = document.getElementById('page-content-input').value;
 
   if (!title) {
-    openModal('page-title-required-modal');
+    ui.openModal('page-title-required-modal');
     return;
   }
 
@@ -599,7 +559,7 @@ document.getElementById('save-page-btn').addEventListener('click', async () => {
 
 document.getElementById('delete-page-btn').addEventListener('click', async () => {
   if (!state.currentPageId) return;
-  openModal('page-delete-modal');
+  ui.openModal('page-delete-modal');
 });
 
 document.getElementById('page-delete-form').addEventListener('submit', async (e) => {
@@ -614,7 +574,7 @@ document.getElementById('page-delete-form').addEventListener('submit', async (e)
   state.pages     = data.pages;
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
-  closeModal('page-delete-modal');
+  ui.closeModal('page-delete-modal');
 });
 
 document.getElementById('back-to-workspace-btn').addEventListener('click', () => {
@@ -857,7 +817,7 @@ document.getElementById('comments-list').addEventListener('click', async (e) => 
 
   if (action === 'delete') {
     pendingCommentDelete = commentId;
-    openModal('comment-delete-modal');
+    ui.openModal('comment-delete-modal');
   }
 });
 
@@ -872,7 +832,7 @@ document.getElementById('comment-delete-form').addEventListener('submit', async 
     clearCommentForm();
   }
   await loadComments(state.currentWorkspaceId, state.currentPageId);
-  closeModal('comment-delete-modal');
+  ui.closeModal('comment-delete-modal');
 });
 
 // ── Collaboration ───────────────────────────────────────────────────────

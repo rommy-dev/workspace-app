@@ -58,6 +58,55 @@ const ui = {
     }, 300);
   },
 
+  // ── Modal Management ───────────────────────────────────────
+  openModal(modalId, inputId, errorId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    // Retirer les classes d'animation précédentes
+    modal.classList.remove('fade-out');
+    const modalInner = modal.querySelector('.modal');
+    if (modalInner) modalInner.classList.remove('closing');
+    
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+
+    if (errorId) this.clearError(errorId);
+    if (inputId) {
+      this.setVal(inputId, '');
+      const input = document.getElementById(inputId);
+      if (input) setTimeout(() => input.focus(), 0);
+    }
+
+    this.refreshIcons();
+  },
+
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    // Ajouter l'animation fade-out
+    modal.classList.add('fade-out');
+    
+    // Attendre la fin de l'animation avant de cacher le modal
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.remove('fade-out');
+      modal.setAttribute('aria-hidden', 'true');
+    }, 300); // Durée de l'animation fade-out
+  },
+
+  // ── Modal State Management ───────────────────────────────────
+  updateModalState(modalIds) {
+    const anyOpen = modalIds.some(id => this.isModalOpen(id));
+    document.body.classList.toggle('modal-open', anyOpen);
+  },
+
+  isModalOpen(id) {
+    const modal = document.getElementById(id);
+    return modal && !modal.classList.contains('hidden');
+  },
+
   setWorkspaceRole(role) {
     const el = document.getElementById('current-role-badge');
     if (!el) return;
@@ -179,6 +228,13 @@ const ui = {
     this.hide('dashboard-view');
     this.hide('profile-view');
     this.show('workspace-view');
+    // Ajouter l'animation fade-in
+    const workspaceView = document.getElementById('workspace-view');
+    if (workspaceView) {
+      workspaceView.classList.remove('fade-in-quick');
+      void workspaceView.offsetWidth; // Force reflow
+      workspaceView.classList.add('fade-in-quick');
+    }
     this.text('workspace-title', workspace.name);
     this.renderPageList(pages);
   },
@@ -393,6 +449,13 @@ const ui = {
     this.hide('dashboard-view');
     this.hide('profile-view');
     this.show('page-view');
+    // Ajouter l'animation fade-in
+    const pageView = document.getElementById('page-view');
+    if (pageView) {
+      pageView.classList.remove('fade-in-quick');
+      void pageView.offsetWidth; // Force reflow
+      pageView.classList.add('fade-in-quick');
+    }
     this.setVal('page-title-input', page.title);
     this.setVal('page-content-input', page.content || '');
     this.refreshIcons();
@@ -413,6 +476,13 @@ const ui = {
     this.hide('page-view');
     this.hide('profile-view');
     this.show('dashboard-view');
+    // Ajouter l'animation fade-in
+    const dashboardView = document.getElementById('dashboard-view');
+    if (dashboardView) {
+      dashboardView.classList.remove('fade-in-quick');
+      void dashboardView.offsetWidth; // Force reflow
+      dashboardView.classList.add('fade-in-quick');
+    }
   },
 
   renderDashboard(data) {
@@ -486,6 +556,13 @@ const ui = {
     this.hide('page-view');
     this.hide('dashboard-view');
     this.show('profile-view');
+    // Ajouter l'animation fade-in
+    const profileView = document.getElementById('profile-view');
+    if (profileView) {
+      profileView.classList.remove('fade-in-quick');
+      void profileView.offsetWidth; // Force reflow
+      profileView.classList.add('fade-in-quick');
+    }
   },
 
   renderProfile(user) {
