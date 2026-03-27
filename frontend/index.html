@@ -12,11 +12,27 @@
 </head>
 <body>
 
+  <!-- ── Global loader d'attente API ───────────────────────────────── -->
+  <div id="global-loader" class="global-loader hidden" role="status" aria-live="polite" aria-label="Chargement en cours">
+    <div class="global-loader__box">
+      <div class="global-loader__spinner"></div>
+      <span>Chargement...</span>
+    </div>
+  </div>
+
   <!-- ── Popup de notification ───────────────────────────────────── -->
   <div id="notification-popup" class="notification-popup hidden">
     <div class="notification-content">
       <i data-lucide="check-circle" class="notification-icon"></i>
       <span id="notification-message"></span>
+    </div>
+  </div>
+
+  <!-- ── Global Loader ───────────────────────────────────────────── -->
+  <div id="global-loader" class="global-loader hidden" aria-hidden="true" aria-live="polite">
+    <div class="loader-overlay">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Chargement...</div>
     </div>
   </div>
 

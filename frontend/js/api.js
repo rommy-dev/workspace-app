@@ -3,33 +3,39 @@ const BASE_URL = '/api';
 
 // Helper interne — toutes les requêtes passent par là
 async function request(method, path, body = null) {
-  const options = {
-    method,
-    credentials: 'include', // envoie le cookie de session automatiquement
-    headers: { 'Content-Type': 'application/json' },
-  };
+  ui.showLoader();
 
-  if (body !== null) {
-    options.body = JSON.stringify(body);
+  try {
+    const options = {
+      method,
+      credentials: 'include', // envoie le cookie de session automatiquement
+      headers: { 'Content-Type': 'application/json' },
+    };
+
+    if (body !== null) {
+      options.body = JSON.stringify(body);
+    }
+
+    const res = await fetch(BASE_URL + path, options);
+
+    // 204 No Content — pas de corps JSON à parser
+    if (res.status === 204) return null;
+
+    const data = await res.json();
+
+    // Si le serveur retourne une erreur, on la lance comme exception
+    // pour que le catch dans app.js puisse la capturer
+    if (!res.ok) {
+      const err = new Error(data.error || 'Erreur serveur');
+      err.status = res.status;
+      err.errors = data.errors || null; // erreurs de validation champ par champ
+      throw err;
+    }
+
+    return data;
+  } finally {
+    ui.hideLoader();
   }
-
-  const res = await fetch(BASE_URL + path, options);
-
-  // 204 No Content — pas de corps JSON à parser
-  if (res.status === 204) return null;
-
-  const data = await res.json();
-
-  // Si le serveur retourne une erreur, on la lance comme exception
-  // pour que le catch dans app.js puisse la capturer
-  if (!res.ok) {
-    const err = new Error(data.error || 'Erreur serveur');
-    err.status = res.status;
-    err.errors = data.errors || null; // erreurs de validation champ par champ
-    throw err;
-  }
-
-  return data;
 }
 
 // ── Auth ────────────────────────────────────────────────────────────
@@ -47,6 +53,7 @@ const api = {
     me:             ()                                => request('GET',  '/profile'),
     update:         (name, email, avatarUrl)          => request('PUT',  '/profile', { name, email, avatar_url: avatarUrl }),
     uploadAvatar:   (file)                            => {
+      ui.showLoader();
       const formData = new FormData();
       formData.append('avatar', file);
       return fetch(BASE_URL + '/profile/avatar', {
@@ -64,6 +71,8 @@ const api = {
           }
           return data;
         });
+      }).finally(() => {
+        ui.hideLoader();
       });
     },
     updatePassword: (currentPassword, newPassword)   => request('PUT',  '/profile/password', { current_password: currentPassword, new_password: newPassword }),

@@ -607,4 +607,21 @@ const ui = {
     this.clearError('profile-info-error');
     this.clearError('profile-password-error');
   },
+
+  // ── Global Loader ────────────────────────────────────────────────────
+  showLoader() {
+    const loader = document.getElementById('global-loader');
+    if (loader) {
+      loader.classList.remove('hidden');
+      loader.setAttribute('aria-hidden', 'false');
+    }
+  },
+
+  hideLoader() {
+    const loader = document.getElementById('global-loader');
+    if (loader) {
+      loader.classList.add('hidden');
+      loader.setAttribute('aria-hidden', 'true');
+    }
+  },
 };
