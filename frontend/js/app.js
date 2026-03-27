@@ -682,20 +682,53 @@ if (mobileDashboardBtn) {
 }
 
 if (mobileWorkspacesBtn) {
-  mobileWorkspacesBtn.addEventListener('click', async () => {
-    // ouvrir le sidebar en mode mobile pour choisir un workspace
-    document.body.classList.toggle('sidebar-open');
+  const workspaceDropdown = document.getElementById('mobile-workspace-dropdown');
+  const workspaceList = document.getElementById('mobile-workspace-list');
+
+  mobileWorkspacesBtn.addEventListener('click', () => {
+    if (!workspaceDropdown || !workspaceList) return;
+
+    // Mise à jour du contenu à chaque ouverture
+    workspaceList.innerHTML = '';
+    if (!state.workspaces || state.workspaces.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Aucun workspace';
+      li.className = 'mobile-workspace-item';
+      li.style.opacity = '0.65';
+      workspaceList.appendChild(li);
+    } else {
+      state.workspaces.forEach((ws) => {
+        const li = document.createElement('li');
+        li.textContent = ws.name;
+        li.className = 'mobile-workspace-item';
+        li.dataset.workspaceId = ws.id;
+
+        if (state.currentWorkspaceId === ws.id) {
+          li.classList.add('active');
+        }
+
+        li.addEventListener('click', async () => {
+          await selectWorkspace(ws.id);
+          if (workspaceDropdown) {
+            workspaceDropdown.classList.add('hidden');
+          }
+        });
+
+        workspaceList.appendChild(li);
+      });
+    }
+
+    workspaceDropdown.classList.toggle('hidden');
     mobileWorkspacesBtn.classList.add('active');
     mobileDashboardBtn?.classList.remove('active');
     mobileProfileBtn?.classList.remove('active');
+  });
 
-    if (!state.currentWorkspaceId) {
-      ui.showEmptyState();
-    } else {
-      const workspace = state.workspaces.find(ws => ws.id === state.currentWorkspaceId);
-      if (workspace) {
-        ui.showWorkspaceView(workspace, state.pages);
-      }
+  document.addEventListener('click', (event) => {
+    if (!workspaceDropdown || !mobileWorkspacesBtn) return;
+    const inside = event.target.closest('#mobile-workspace-dropdown') || event.target.closest('#mobile-workspaces-btn');
+    if (!inside) {
+      workspaceDropdown.classList.add('hidden');
     }
   });
 }
