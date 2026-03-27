@@ -963,12 +963,18 @@ body.sidebar-collapsed .btn-logout span { display: none; }
 
 .comments-btn:hover {
   background: #e0e0e0;
+  border: 1px solid #999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.comments-btn.is-open:hover .icon {
+  color: #1a1a1a;
 }
 
 .comments-btn .icon {
   width: 18px;
   height: 18px;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Responsive pour mobile - bouton de commentaires */
@@ -1276,7 +1282,14 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   display: flex;
   flex-direction: column;
   gap: .4rem;
+  transition: all 0.3s ease-in-out;
 }
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .stat-value { font-size: 2rem; font-weight: 600; }
 .stat-label { font-size: .85rem; color: #888; }
 
