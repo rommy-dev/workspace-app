@@ -317,7 +317,7 @@ const ui = {
       const isSelf = memberId === currentUserId;
       const isOwner = member.role === 'owner';
 
-      if (isSelf) {
+      if (isSelf && !isOwner) {
         const btn = document.createElement('button');
         btn.innerHTML = '<i data-lucide="log-out" class="icon"></i> Quitter';
         btn.dataset.action = 'leave';
