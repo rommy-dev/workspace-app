@@ -132,6 +132,12 @@ button[disabled]:hover { background: white; }
 }
 .btn-danger-solid:hover { background: #a93226; }
 
+.btn-container {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
 .icon {
   width: 16px;
   height: 16px;
@@ -216,6 +222,72 @@ button[disabled]:hover { background: white; }
 
 body.modal-open {
   overflow: hidden;
+}
+
+/* ── Avatar modal fullscreen ─────────────────────────────────── */
+.avatar-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  pointer-events: none;
+}
+
+.avatar-modal:not(.hidden) {
+  pointer-events: auto;
+}
+
+.avatar-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(2px);
+}
+
+.avatar-modal-content {
+  position: relative;
+  max-width: min(90vw, 900px);
+  max-height: min(90vh, 90vw);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 0.8rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-modal-content img {
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.avatar-modal-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.avatar-modal-close:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .fade-in {
@@ -355,6 +427,15 @@ body.modal-open {
   height: 48px;
   margin-bottom: 0.5rem;
 }
+
+.profile-avatar {
+  cursor: default;
+}
+
+.profile-avatar.has-avatar {
+  cursor: zoom-in;
+}
+
 
 .user-avatar img {
   width: 100%;
@@ -1246,6 +1327,15 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   
   .stat-label {
     font-size: 0.75rem;
+  }
+
+  .btn-p-sm {
+    padding: .6rem 1rem !important;
+  }
+
+  .btn-container  {
+    justify-content: center;
+    align-items: center;
   }
 }
 

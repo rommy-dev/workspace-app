@@ -629,6 +629,31 @@ async function loadProfile() {
 // Lien vers le profil depuis le user-info de la sidebar
 document.getElementById('user-info').addEventListener('click', loadProfile);
 
+// Ouvre le modal agrandi sur clic avatar dans la vue profil
+const profileAvatarImg = document.getElementById('profile-avatar-img');
+if (profileAvatarImg) {
+  profileAvatarImg.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const avatarUrl = e.currentTarget.dataset.avatarUrl;
+    if (avatarUrl) ui.openAvatarModal(avatarUrl);
+  });
+}
+
+const avatarModal = document.getElementById('avatar-modal');
+if (avatarModal) {
+  avatarModal.addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'close-avatar' || e.target.closest('[data-action="close-avatar"]')) {
+      ui.closeAvatarModal();
+    }
+  });
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    ui.closeAvatarModal();
+  }
+});
+
 // Formulaire Infos profile (name, email, avatar upload)
 document.getElementById('profile-info-form').addEventListener('submit', async (e) => {
   e.preventDefault();

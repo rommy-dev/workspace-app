@@ -177,6 +177,7 @@ const ui = {
       avatarImg.style.display = 'block';
       avatarFallback.classList.remove('active');
     } else {
+      avatarImg.src = '';
       avatarImg.style.display = 'none';
       avatarFallback.classList.add('active');
       avatarFallback.textContent = user.name.charAt(0).toUpperCase();
@@ -578,6 +579,7 @@ const ui = {
     // Avatar: display image if URL exists, otherwise show fallback
     const avatarImg = document.getElementById('profile-avatar-img');
     const avatarFallback = document.getElementById('profile-avatar-fallback');
+    const profileAvatar = document.querySelector('.profile-avatar');
     
     if (user.avatar_url) {
       // Support both local paths (avatars/...) and external URLs
@@ -585,12 +587,17 @@ const ui = {
         ? user.avatar_url 
         : '/' + user.avatar_url;
       avatarImg.src = src;
+      avatarImg.dataset.avatarUrl = src;
       avatarImg.style.display = 'block';
       avatarFallback.classList.remove('active');
+      if (profileAvatar) profileAvatar.classList.add('has-avatar');
     } else {
+      avatarImg.src = '';
+      avatarImg.removeAttribute('data-avatar-url');
       avatarImg.style.display = 'none';
       avatarFallback.classList.add('active');
       avatarFallback.textContent = user.name.charAt(0).toUpperCase();
+      if (profileAvatar) profileAvatar.classList.remove('has-avatar');
     }
 
     // Remplir les formulaires
@@ -623,5 +630,27 @@ const ui = {
       loader.classList.add('hidden');
       loader.setAttribute('aria-hidden', 'true');
     }
+  },
+
+  openAvatarModal(avatarUrl) {
+    const modal = document.getElementById('avatar-modal');
+    const img = document.getElementById('avatar-modal-image');
+    if (!modal || !img) return;
+
+    img.src = avatarUrl;
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  },
+
+  closeAvatarModal() {
+    const modal = document.getElementById('avatar-modal');
+    const img = document.getElementById('avatar-modal-image');
+    if (!modal || !img) return;
+
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    img.src = '';
+    document.body.classList.remove('modal-open');
   },
 };
