@@ -336,6 +336,7 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
     await loadWorkspaces();
     ui.closeModal('workspace-modal');
     ui.clearVal('workspace-name-input');
+    ui.showNotification('Workspace créé avec succès !');
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
     ui.showError('workspace-modal-error', msg);
@@ -360,6 +361,7 @@ document.getElementById('workspace-delete-form').addEventListener('submit', asyn
   await loadWorkspaces();
   ui.showEmptyState();
   ui.closeModal('workspace-delete-modal');
+  ui.showNotification('Workspace supprimé avec succès !');
 });
 
 // ── Membres ─────────────────────────────────────────────────────────
@@ -379,10 +381,9 @@ document.getElementById('invite-form').addEventListener('submit', async (e) => {
   try {
     await api.members.add(state.currentWorkspaceId, email, role);
     ui.clearVal('invite-email');
-    await loadMembers(
-      state.currentWorkspaceId,
-      state.workspaces.find(w => w.id === state.currentWorkspaceId)
-    );
+    document.getElementById('invite-role').value = 'editor';
+    await loadMembers(state.currentWorkspaceId);
+    ui.showNotification('Collaborateur ajouté avec succès !');
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
     ui.showError('invite-error', msg);
@@ -395,18 +396,16 @@ async function finalizeMemberRemoval(userId, isSelf) {
   if (isSelf) {
     state.currentWorkspaceId = null;
     state.currentWorkspaceRole = null;
-    state.members = [];
-    state.pages = [];
+    state.members            = [];
+    state.pages              = [];
     resetCommentsState();
     await loadWorkspaces();
     ui.showEmptyState();
-    return;
+    ui.showNotification('Vous avez quitté le workspace');
+  } else {
+    await loadMembers(state.currentWorkspaceId);
+    ui.showNotification('Collaborateur retiré avec succès !');
   }
-
-  await loadMembers(
-    state.currentWorkspaceId,
-    state.workspaces.find(w => w.id === state.currentWorkspaceId)
-  );
 }
 
 document.getElementById('member-list').addEventListener('click', async (e) => {
@@ -532,6 +531,7 @@ document.getElementById('page-form').addEventListener('submit', async (e) => {
     ui.showWorkspaceView(workspace, state.pages);
     ui.closeModal('page-modal');
     ui.clearVal('page-title-modal-input');
+    ui.showNotification('Page créée avec succès !');
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
     ui.showError('page-modal-error', msg);
@@ -555,6 +555,7 @@ document.getElementById('save-page-btn').addEventListener('click', async () => {
   const data = await api.pages.list(state.currentWorkspaceId);
   state.pages = data.pages;
   ui.renderPageList(state.pages);
+  ui.showNotification('Page sauvegardée avec succès !');
 });
 
 document.getElementById('delete-page-btn').addEventListener('click', async () => {
@@ -575,6 +576,7 @@ document.getElementById('page-delete-form').addEventListener('submit', async (e)
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
   ui.closeModal('page-delete-modal');
+  ui.showNotification('Page supprimée avec succès !');
 });
 
 document.getElementById('back-to-workspace-btn').addEventListener('click', () => {
@@ -769,8 +771,10 @@ document.getElementById('comment-form').addEventListener('submit', async (e) => 
         state.editingCommentId,
         content
       );
+      ui.showNotification('Commentaire modifié avec succès !');
     } else {
       await api.comments.create(state.currentWorkspaceId, state.currentPageId, content);
+      ui.showNotification('Commentaire ajouté avec succès !');
     }
 
     state.editingCommentId = null;
@@ -833,6 +837,7 @@ document.getElementById('comment-delete-form').addEventListener('submit', async 
   }
   await loadComments(state.currentWorkspaceId, state.currentPageId);
   ui.closeModal('comment-delete-modal');
+  ui.showNotification('Commentaire supprimé avec succès !');
 });
 
 // ── Collaboration ───────────────────────────────────────────────────────
