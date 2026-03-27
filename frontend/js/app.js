@@ -306,6 +306,10 @@ async function selectWorkspace(id) {
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
   await loadMembers(id, workspace);
+
+  if (document.body.classList.contains('sidebar-open')) {
+    document.body.classList.remove('sidebar-open');
+  }
 }
 
 // Clic sur un item de la liste — délégation d'événement
@@ -600,6 +604,10 @@ async function loadDashboard() {
   // Cacher le profil quand on arrive sur le dashboard
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.remove('active');
+
+  if (document.body.classList.contains('sidebar-open')) {
+    document.body.classList.remove('sidebar-open');
+  }
 }
 
 // Bouton dashboard dans la sidebar
@@ -621,6 +629,10 @@ async function loadProfile() {
     // Enlever l'active du dashboard
     const dashboardBtn = document.getElementById('dashboard-btn');
     if (dashboardBtn) dashboardBtn.classList.remove('active');
+
+    if (document.body.classList.contains('sidebar-open')) {
+      document.body.classList.remove('sidebar-open');
+    }
   } catch (err) {
     alert('Erreur lors du chargement du profil: ' + err.message);
   }
@@ -653,6 +665,55 @@ window.addEventListener('keydown', (e) => {
     ui.closeAvatarModal();
   }
 });
+
+// Navigation mobile bottom bar
+const mobileDashboardBtn = document.getElementById('mobile-dashboard-btn');
+const mobileWorkspacesBtn = document.getElementById('mobile-workspaces-btn');
+const mobileProfileBtn = document.getElementById('mobile-profile-btn');
+const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+
+if (mobileDashboardBtn) {
+  mobileDashboardBtn.addEventListener('click', async () => {
+    await loadDashboard();
+    mobileDashboardBtn.classList.add('active');
+    mobileWorkspacesBtn?.classList.remove('active');
+    mobileProfileBtn?.classList.remove('active');
+  });
+}
+
+if (mobileWorkspacesBtn) {
+  mobileWorkspacesBtn.addEventListener('click', async () => {
+    // ouvrir le sidebar en mode mobile pour choisir un workspace
+    document.body.classList.toggle('sidebar-open');
+    mobileWorkspacesBtn.classList.add('active');
+    mobileDashboardBtn?.classList.remove('active');
+    mobileProfileBtn?.classList.remove('active');
+
+    if (!state.currentWorkspaceId) {
+      ui.showEmptyState();
+    } else {
+      const workspace = state.workspaces.find(ws => ws.id === state.currentWorkspaceId);
+      if (workspace) {
+        ui.showWorkspaceView(workspace, state.pages);
+      }
+    }
+  });
+}
+
+if (mobileProfileBtn) {
+  mobileProfileBtn.addEventListener('click', async () => {
+    await loadProfile();
+    mobileProfileBtn.classList.add('active');
+    mobileDashboardBtn?.classList.remove('active');
+    mobileWorkspacesBtn?.classList.remove('active');
+  });
+}
+
+if (mobileLogoutBtn) {
+  mobileLogoutBtn.addEventListener('click', () => {
+    ui.openModal('logout-modal');
+  });
+}
 
 // Formulaire Infos profile (name, email, avatar upload)
 document.getElementById('profile-info-form').addEventListener('submit', async (e) => {
