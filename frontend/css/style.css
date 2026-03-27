@@ -733,6 +733,10 @@ body.sidebar-collapsed .btn-logout span { display: none; }
     display: flex;
   }
 
+  .label-full {
+    display: none !important;
+  }
+
   #workspace-view,
   #page-view,
   #dashboard-view,
@@ -1193,14 +1197,14 @@ body.sidebar-collapsed .btn-logout span { display: none; }
 @media (max-width: 768px) {
   .comments-btn-container {
     position: fixed;
-    bottom: 1rem;
+    bottom: 5rem !important;
     right: 1rem;
     z-index: 100;
   }
   
   .comments-btn {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     background: #1a1a1a;
     border-color: #000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -1224,8 +1228,8 @@ body.sidebar-collapsed .btn-logout span { display: none; }
   }
   
   .comments-btn {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
   }
   
   .comments-btn .icon {
@@ -1790,13 +1794,13 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   }
 
   .profile-avatar img {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
   }
 
   .avatar-fallback {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     font-size: 1.5rem;
   }
 
