@@ -8,6 +8,10 @@ const state = {
   members:            [],    // membres du workspace courant
   pages:              [],    // pages du workspace courant
   currentPageId:      null,
+  currentPageSource:  null,  // 'workspace' | 'shared' | null
+  currentPagePermission: null, // 'read' | 'edit' | null
+  pageShares:         [],    // partages de la page courante
+  sharedPages:        [],    // pages partagées avec moi
   comments:           [],    // commentaires de la page courante
   commentsOpen:       false,
   editingCommentId:   null,

@@ -110,6 +110,15 @@ const api = {
     remove: (wsId, userId)     => request('DELETE', `/workspaces/${wsId}/members/${userId}`),
   },
 
+  // ── Partage de pages ─────────────────────────────────────────────
+  shares: {
+    list:   (wsId, pageId)                  => request('GET',    `/workspaces/${wsId}/pages/${pageId}/shares`),
+    create: (wsId, pageId, email, permission) => request('POST',   `/workspaces/${wsId}/pages/${pageId}/shares`, { email, permission }),
+    update: (wsId, pageId, userId, permission) => request('PUT',    `/workspaces/${wsId}/pages/${pageId}/shares/${userId}`, { permission }),
+    remove: (wsId, pageId, userId)          => request('DELETE', `/workspaces/${wsId}/pages/${pageId}/shares/${userId}`),
+    listShared: ()                          => request('GET',    '/pages/shared'),
+  },
+
   // ── Dashboard ─────────────────────────────────────────────────────────
   dashboard: {
     get: (period = '') => {

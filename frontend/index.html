@@ -98,6 +98,10 @@
           <i data-lucide="layout-dashboard" class="icon"></i>
           <span class="label-full">Dashboard</span>
         </button>
+        <button id="shared-pages-btn" class="sidebar-link" aria-label="Partages" title="Partages">
+          <i data-lucide="share-2" class="icon"></i>
+          <span class="label-full">Partages</span>
+        </button>
         <div class="workspace-sidebar-header">
           <h2>
             <span class="label-full">Workspaces</span>
@@ -192,6 +196,10 @@
             <input type="text" id="page-title-input" placeholder="Titre de la page">
           </div>
           <div class="page-header-right">
+            <button id="share-page-btn">
+              <i data-lucide="share-2" class="icon"></i>
+              <span class="label-full">Partager</span>
+            </button>
             <button id="save-page-btn">
               <i data-lucide="save" class="icon"></i> 
               <span class="label-full">Sauvegarder</span>
@@ -204,7 +212,7 @@
         </div>
         <div class="page-content-container">
           <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
-          <div class="comments-btn-container">
+          <div id="comments-container" class="comments-btn-container">
             <button id="comments-btn" class="comments-btn" type="button" aria-expanded="false" aria-controls="comments-panel">
               <i data-lucide="message-circle" class="icon"></i>
             </button>
@@ -237,6 +245,13 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Vue pages partagées -->
+      <div id="shared-pages-view" class="hidden">
+        <h2 class="view-title">Pages partagées</h2>
+        <p class="shared-pages-subtitle">Accès externes reçus sur vos pages.</p>
+        <ul id="shared-page-list"></ul>
       </div>
 
       <!-- Vue dashboard -->
@@ -391,6 +406,10 @@
         <i data-lucide="layout-dashboard"></i>
         <span>Dashboard</span>
       </button>
+      <button id="mobile-shared-btn" class="bottom-nav-btn" type="button" aria-label="Partages">
+        <i data-lucide="share-2"></i>
+        <span>Partages</span>
+      </button>
       <div class="mobile-dropdown-wrap">
         <button id="mobile-workspaces-btn" class="bottom-nav-btn" type="button" aria-label="Workspaces">
           <i data-lucide="layers"></i>
@@ -453,6 +472,34 @@
     </div>
   </div>
 
+  <div id="share-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="modal share-modal" role="document">
+      <div class="modal-header">
+        <h3 id="share-modal-title">Partager la page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="share-form" class="modal-body">
+        <label class="form-label" for="share-email-input">Partager avec</label>
+        <div class="share-form-row">
+          <input type="email" id="share-email-input" placeholder="Email du destinataire">
+          <select id="share-permission-select">
+            <option value="read">Lecture</option>
+            <option value="edit">Édition</option>
+          </select>
+          <button id="share-submit-btn" type="submit" class="btn-primary">Partager</button>
+        </div>
+        <div class="form-error" id="share-error"></div>
+      </form>
+      <div class="share-list-header">
+        <p class="form-label">Accès existants</p>
+        <span id="share-total" class="share-total">0</span>
+      </div>
+      <ul id="share-list" class="share-list"></ul>
+    </div>
+  </div>
+
   <div id="workspace-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="workspace-delete-title">
     <div class="modal" role="document">
       <div class="modal-header">
@@ -484,6 +531,25 @@
         <div class="modal-actions">
           <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
           <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="share-remove-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="share-remove-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="share-remove-title">Retirer l'accès</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="share-remove-form" class="modal-body">
+        <p>Retirer l'accès de <strong id="share-remove-name">ce membre</strong> ?</p>
+        <p>Il ne pourra plus consulter cette page.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Retirer</button>
         </div>
       </form>
     </div>

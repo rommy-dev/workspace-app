@@ -133,7 +133,7 @@ const ui = {
     form.classList.toggle('hidden', !show);
   },
 
-  setWorkspaceActions({ canDeleteWorkspace, canEditPages }) {
+  setWorkspaceActions({ canDeleteWorkspace, canEditPages, canDeletePage = canEditPages }) {
     const deleteBtn = document.getElementById('delete-workspace-btn');
     if (deleteBtn) deleteBtn.classList.toggle('hidden', !canDeleteWorkspace);
 
@@ -145,8 +145,9 @@ const ui = {
 
     [newPageBtn, savePageBtn, deletePageBtn].forEach(btn => {
       if (!btn) return;
-      btn.disabled = !canEditPages;
-      btn.setAttribute('aria-disabled', (!canEditPages).toString());
+      const disable = btn === deletePageBtn ? !canDeletePage : !canEditPages;
+      btn.disabled = disable;
+      btn.setAttribute('aria-disabled', disable.toString());
     });
 
     if (titleInput)  titleInput.readOnly  = !canEditPages;
@@ -226,6 +227,7 @@ const ui = {
   showWorkspaceView(workspace, pages) {
     this.hide('empty-state');
     this.hide('page-view');
+    this.hide('shared-pages-view');
     this.hide('dashboard-view');
     this.hide('profile-view');
     this.show('workspace-view');
@@ -447,6 +449,7 @@ const ui = {
   showPageView(page) {
     this.hide('workspace-view');
     this.hide('empty-state');
+    this.hide('shared-pages-view');
     this.hide('dashboard-view');
     this.hide('profile-view');
     this.show('page-view');
@@ -466,6 +469,7 @@ const ui = {
     this.show('empty-state');
     this.hide('workspace-view');
     this.hide('page-view');
+    this.hide('shared-pages-view');
     this.hide('dashboard-view');
     this.hide('profile-view');
   },
@@ -475,6 +479,7 @@ const ui = {
     this.hide('empty-state');
     this.hide('workspace-view');
     this.hide('page-view');
+    this.hide('shared-pages-view');
     this.hide('profile-view');
     this.show('dashboard-view');
     // Ajouter l'animation fade-in
@@ -644,6 +649,7 @@ const ui = {
     this.hide('empty-state');
     this.hide('workspace-view');
     this.hide('page-view');
+    this.hide('shared-pages-view');
     this.hide('dashboard-view');
     this.show('profile-view');
     // Ajouter l'animation fade-in
@@ -702,6 +708,153 @@ const ui = {
     // Nettoyer les erreurs
     this.clearError('profile-info-error');
     this.clearError('profile-password-error');
+  },
+
+  // ── Pages partagées ─────────────────────────────────────────────────
+  showSharedPagesView() {
+    this.hide('empty-state');
+    this.hide('workspace-view');
+    this.hide('page-view');
+    this.hide('dashboard-view');
+    this.hide('profile-view');
+    this.show('shared-pages-view');
+    const sharedView = document.getElementById('shared-pages-view');
+    if (sharedView) {
+      sharedView.classList.remove('fade-in-quick');
+      void sharedView.offsetWidth;
+      sharedView.classList.add('fade-in-quick');
+    }
+  },
+
+  renderSharedPageList(pages) {
+    const list = document.getElementById('shared-page-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (!pages || pages.length === 0) {
+      list.innerHTML = '<li class="empty-hint">Aucune page partagée</li>';
+      return;
+    }
+
+    pages.forEach(page => {
+      const li = document.createElement('li');
+      li.className = 'shared-page-item';
+      li.dataset.pageId = page.page_id;
+      li.dataset.workspaceId = page.workspace_id;
+      li.dataset.permission = page.permission;
+
+      const left = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = 'shared-page-title';
+      title.textContent = page.title || 'Sans titre';
+
+      const meta = document.createElement('div');
+      meta.className = 'shared-page-meta';
+      const owner = page.owner_name ? ` · ${page.owner_name}` : '';
+      meta.textContent = `${page.workspace_name}${owner}`;
+
+      left.appendChild(title);
+      left.appendChild(meta);
+
+      const right = document.createElement('div');
+      right.className = 'shared-page-actions';
+
+      const badge = document.createElement('span');
+      badge.className = `permission-badge ${page.permission}`;
+      badge.textContent = page.permission === 'edit' ? 'Édition' : 'Lecture';
+
+      const updated = document.createElement('div');
+      updated.className = 'shared-page-meta';
+      const date = page.updated_at ? new Date(page.updated_at) : null;
+      updated.textContent = date
+        ? `Maj ${date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`
+        : '';
+
+      right.appendChild(badge);
+      if (updated.textContent) right.appendChild(updated);
+
+      li.appendChild(left);
+      li.appendChild(right);
+      list.appendChild(li);
+    });
+  },
+
+  // ── Partages sur une page ─────────────────────────────────────────
+  renderShareList(shares) {
+    const list = document.getElementById('share-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (!shares || shares.length === 0) {
+      list.innerHTML = '<li class="empty-hint">Aucun partage pour l\'instant</li>';
+      return;
+    }
+
+    shares.forEach(share => {
+      const li = document.createElement('li');
+      li.className = 'share-item';
+      li.dataset.userId = share.user_id;
+
+      const details = document.createElement('div');
+      details.className = 'share-item-details';
+
+      const name = document.createElement('div');
+      name.className = 'share-item-name';
+      name.textContent = share.name || 'Utilisateur';
+
+      const email = document.createElement('div');
+      email.className = 'share-item-email';
+      email.textContent = share.email;
+
+      details.appendChild(name);
+      details.appendChild(email);
+
+      const actions = document.createElement('div');
+      actions.className = 'share-item-actions';
+
+      const select = document.createElement('select');
+      select.dataset.action = 'permission';
+      select.dataset.userId = share.user_id;
+      const readOpt = document.createElement('option');
+      readOpt.value = 'read';
+      readOpt.textContent = 'Lecture';
+      const editOpt = document.createElement('option');
+      editOpt.value = 'edit';
+      editOpt.textContent = 'Édition';
+      select.appendChild(readOpt);
+      select.appendChild(editOpt);
+      select.value = share.permission;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'btn-danger';
+      removeBtn.dataset.action = 'remove';
+      removeBtn.dataset.userId = share.user_id;
+      removeBtn.innerHTML = '<i data-lucide="user-minus" class="icon"></i> Retirer';
+
+      actions.appendChild(select);
+      actions.appendChild(removeBtn);
+
+      li.appendChild(details);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+
+    this.refreshIcons();
+  },
+
+  setShareTotal(count) {
+    const el = document.getElementById('share-total');
+    if (el) el.textContent = String(count ?? 0);
+  },
+
+  setCommentsAvailable(canComment) {
+    const container = document.getElementById('comments-container');
+    if (container) container.classList.toggle('hidden', !canComment);
+  },
+
+  setShareButtonVisible(show) {
+    const btn = document.getElementById('share-page-btn');
+    if (btn) btn.classList.toggle('hidden', !show);
   },
 
   // ── Global Loader ────────────────────────────────────────────────────
