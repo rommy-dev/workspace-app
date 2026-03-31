@@ -17,10 +17,24 @@ class DashboardController
     public function index(array $params): void
     {
         $userId = $_SESSION['user_id'];
+        $period = isset($_GET['period']) ? $_GET['period'] : '7d';
+
+        $validPeriods = ['7d' => 7, '30d' => 30, '1y' => 365];
+        $days = $validPeriods[$period] ?? 7;
 
         $stats           = $this->model->getStats($userId);
         $workspaces      = $this->model->getWorkspacesWithStats($userId);
         $recentActivity  = $this->model->getRecentActivity($userId);
+
+        $fromDate = (new \DateTime())->modify("-{$days} days")->format('Y-m-d H:i:s');
+
+        $workspaceIds = array_map(fn($ws) => $ws['id'], $workspaces);
+        if (empty($workspaceIds)) {
+            $workspaceIds = [0];
+        }
+
+        $timeline       = $this->model->getActivityByDate($workspaceIds, $fromDate);
+        $userStats      = $this->model->getUserStatsForPeriod($userId, $fromDate);
 
         // Cast explicite — MySQL retourne les COUNT() en string par défaut
         $stats['workspaces_count']    = (int) $stats['workspaces_count'];
@@ -34,6 +48,11 @@ class DashboardController
             $ws['members_count']  = (int) $ws['members_count'];
             $ws['is_owner']       = (bool) $ws['is_owner'];
         }
+
+        $stats = array_merge($stats, $userStats, [
+            'period' => $period,
+            'timeline' => $timeline,
+        ]);
 
         $this->respond(200, [
             'stats'           => $stats,

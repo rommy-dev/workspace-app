@@ -592,12 +592,17 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
 
 // ── Dashboard ────────────────────────────────────────────────────────
 // Charge et affiche le dashboard
-async function loadDashboard() {
-  const data = await api.dashboard.get();
+async function loadDashboard(period = '7d') {
+  const data = await api.dashboard.get(period);
   ui.renderDashboard(data);
   ui.showDashboard();
   const dashboardBtn = document.getElementById('dashboard-btn');
   if (dashboardBtn) dashboardBtn.classList.add('active');
+
+  // Marque les boutons période
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.period === period);
+  });
   // Désélectionne le workspace actif dans la sidebar
   document.querySelectorAll('.workspace-item')
     .forEach(el => el.classList.remove('active'));
@@ -611,7 +616,16 @@ async function loadDashboard() {
 }
 
 // Bouton dashboard dans la sidebar
-document.getElementById('dashboard-btn').addEventListener('click', loadDashboard);
+document.getElementById('dashboard-btn').addEventListener('click', () => loadDashboard('7d'));
+
+// Périodes dans le dashboard
+document.querySelectorAll('.period-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const period = btn.dataset.period;
+    if (!period) return;
+    loadDashboard(period);
+  });
+});
 
 // ── Profile ──────────────────────────────────────────────────────────
 // Charge et affiche le profil

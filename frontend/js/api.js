@@ -112,6 +112,9 @@ const api = {
 
   // ── Dashboard ─────────────────────────────────────────────────────────
   dashboard: {
-    get: () => request('GET', '/dashboard'),
+    get: (period = '') => {
+      const qs = period ? `?period=${encodeURIComponent(period)}` : '';
+      return request('GET', `/dashboard${qs}`);
+    },
   },
 };

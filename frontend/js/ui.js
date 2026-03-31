@@ -495,6 +495,95 @@ const ui = {
     this.text('stat-comments',      stats.comments_count);
     this.text('stat-collaborators', stats.collaborators_count);
 
+    const trendMap = {
+      workspaces: stats.workspaces_trend || 0,
+      pages: stats.pages_trend || 0,
+      comments: stats.comments_trend || 0,
+      collaborators: stats.collaborators_trend || 0,
+    };
+    this.text('stat-workspaces-trend', trendMap.workspaces > 0 ? `↑ ${trendMap.workspaces}%` : (trendMap.workspaces < 0 ? `↓ ${Math.abs(trendMap.workspaces)}%` : '—'));
+    this.text('stat-pages-trend', trendMap.pages > 0 ? `↑ ${trendMap.pages}%` : (trendMap.pages < 0 ? `↓ ${Math.abs(trendMap.pages)}%` : '—'));
+    this.text('stat-comments-trend', trendMap.comments > 0 ? `↑ ${trendMap.comments}%` : (trendMap.comments < 0 ? `↓ ${Math.abs(trendMap.comments)}%` : '—'));
+    this.text('stat-collaborators-trend', trendMap.collaborators > 0 ? `↑ ${trendMap.collaborators}%` : (trendMap.collaborators < 0 ? `↓ ${Math.abs(trendMap.collaborators)}%` : '—'));
+
+    // Activité personnelle
+    this.text('personal-pages', stats.user_pages_created || 0);
+    this.text('personal-comments', stats.user_comments || 0);
+    this.text('personal-response-time', stats.average_response_time ? `${stats.average_response_time} min` : '—');
+
+    // Top workspaces
+    const topWorkspacesEl = document.getElementById('top-workspaces-list');
+    topWorkspacesEl.innerHTML = '';
+    const top = [...workspaces]
+      .sort((a,b) => ((b.pages_count || 0) + (b.comments_count || 0)) - ((a.pages_count || 0) + (a.comments_count || 0)))
+      .slice(0, 3);
+
+    if (top.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Aucun workspace actif pour le moment';
+      topWorkspacesEl.appendChild(li);
+    } else {
+      top.forEach(ws => {
+        const li = document.createElement('li');
+        li.textContent = `${ws.name} (${(ws.pages_count||0)} pages, ${(ws.comments_count||0)} comm.)`;
+        li.className = 'top-workspace-item';
+        li.style.cursor = 'pointer';
+        li.dataset.workspaceId = ws.id;
+
+        li.addEventListener('click', async () => {
+          if (typeof window.selectWorkspace === 'function') {
+            await window.selectWorkspace(ws.id);
+          }
+        });
+
+        topWorkspacesEl.appendChild(li);
+      });
+    }
+
+    // Graphique activité
+    const chartInner = document.getElementById('dashboard-chart-inner');
+    chartInner.innerHTML = '';
+
+    const timeline = stats.timeline || [];
+    if (timeline.length === 0) {
+      chartInner.innerHTML = '<p class="empty-hint">Aucune donnée de timeline disponible.</p>';
+    } else {
+      const maxActivity = Math.max(...timeline.map(row => row.activity || 0), 1);
+
+      timeline.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'chart-row';
+
+        const label = document.createElement('span');
+        label.className = 'chart-label';
+        label.textContent = row.date;
+
+        const barContainer = document.createElement('div');
+        barContainer.className = 'chart-bar';
+
+        const pagesFill = document.createElement('div');
+        pagesFill.className = 'chart-bar-fill pages';
+        pagesFill.style.width = `${Math.round(((row.pages||0)/maxActivity)*100)}%`;
+
+        const commentsFill = document.createElement('div');
+        commentsFill.className = 'chart-bar-fill comments';
+        commentsFill.style.width = `${Math.round(((row.comments||0)/maxActivity)*100)}%`;
+
+        barContainer.appendChild(pagesFill);
+        barContainer.appendChild(commentsFill);
+
+        const value = document.createElement('span');
+        value.className = 'chart-value';
+        value.textContent = `${row.pages || 0}p / ${row.comments || 0}c`;
+
+        rowEl.appendChild(label);
+        rowEl.appendChild(barContainer);
+        rowEl.appendChild(value);
+
+        chartInner.appendChild(rowEl);
+      });
+    }
+
     // Workspaces avec barres proportionnelles
     const maxPages   = Math.max(...workspaces.map(w => w.pages_count), 1);
     const container  = document.getElementById('workspace-stats-list');

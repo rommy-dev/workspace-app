@@ -243,23 +243,54 @@
       <div id="dashboard-view" class="hidden">
         <h2 class="view-title">Dashboard</h2>
 
-        <!-- Stats globales -->
+        <!-- Période / filtres -->
+        <div id="dashboard-period-controls" class="period-controls">
+          <button class="period-btn active" data-period="7d">7 derniers jours</button>
+          <button class="period-btn" data-period="30d">30 derniers jours</button>
+          <button class="period-btn" data-period="1y">12 mois</button>
+        </div>
+
+        <!-- Métriques principales -->
         <div id="stats-grid">
           <div class="stat-card">
             <span class="stat-value" id="stat-workspaces">—</span>
             <span class="stat-label">Workspaces</span>
+            <span id="stat-workspaces-trend" class="stat-trend">—</span>
           </div>
           <div class="stat-card">
             <span class="stat-value" id="stat-pages">—</span>
             <span class="stat-label">Pages</span>
+            <span id="stat-pages-trend" class="stat-trend">—</span>
           </div>
           <div class="stat-card">
             <span class="stat-value" id="stat-comments">—</span>
             <span class="stat-label">Commentaires</span>
+            <span id="stat-comments-trend" class="stat-trend">—</span>
           </div>
           <div class="stat-card">
             <span class="stat-value" id="stat-collaborators">—</span>
             <span class="stat-label">Collaborateurs</span>
+            <span id="stat-collaborators-trend" class="stat-trend">—</span>
+          </div>
+        </div>
+
+        <!-- Graphiques activité -->
+        <div id="dashboard-chart" class="dashboard-chart">
+          <h3 class="section-title">Graphique d'activité</h3>
+          <div id="dashboard-chart-inner" class="dashboard-chart-inner"></div>
+        </div>
+
+        <!-- Nouveaux blocs -->
+        <div id="dashboard-meta-grid" class="dashboard-meta-grid">
+          <div class="meta-card">
+            <h3>Votre activité</h3>
+            <p>Pages créées : <strong id="personal-pages">—</strong></p>
+            <p>Commentaires écrits : <strong id="personal-comments">—</strong></p>
+            <p>Temps moyen réponse : <strong id="personal-response-time">—</strong></p>
+          </div>
+          <div class="meta-card">
+            <h3>Top workspaces</h3>
+            <ol id="top-workspaces-list" class="top-workspaces-list"></ol>
           </div>
         </div>
 
