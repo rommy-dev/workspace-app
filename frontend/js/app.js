@@ -1,3 +1,107 @@
+// ── Persistance de vue ──────────────────────────────────────────────
+const VIEW_STATE_KEY = 'viewState';
+
+function parseMaybeInt(value) {
+  if (!value) return null;
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function getSavedViewState() {
+  const raw = localStorage.getItem(VIEW_STATE_KEY);
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      localStorage.removeItem(VIEW_STATE_KEY);
+    }
+  }
+
+  const legacyView = localStorage.getItem('currentView');
+  if (!legacyView) return null;
+
+  return {
+    currentView: legacyView,
+    currentWorkspaceId: parseMaybeInt(localStorage.getItem('currentWorkspaceId')),
+    currentPageId: parseMaybeInt(localStorage.getItem('currentPageId')),
+    currentPageSource: localStorage.getItem('currentPageSource') || null,
+    currentPagePermission: null,
+  };
+}
+
+function clearLegacyViewState() {
+  localStorage.removeItem('currentView');
+  localStorage.removeItem('currentWorkspaceId');
+  localStorage.removeItem('currentPageId');
+  localStorage.removeItem('currentPageSource');
+}
+
+// ── Sauvegarde d'état ──────────────────────────────────────────────────
+function saveViewState() {
+  const payload = {
+    currentView: state.currentView,
+    currentWorkspaceId: state.currentWorkspaceId,
+    currentPageId: state.currentPageId,
+    currentPageSource: state.currentPageSource,
+    currentPagePermission: state.currentPagePermission,
+  };
+  localStorage.setItem(VIEW_STATE_KEY, JSON.stringify(payload));
+  clearLegacyViewState();
+}
+
+async function restoreView(savedState) {
+  switch (savedState.currentView) {
+    case 'workspace': {
+      if (!savedState.currentWorkspaceId) {
+        await loadDashboard();
+        return;
+      }
+      await selectWorkspace(savedState.currentWorkspaceId);
+      if (savedState.currentPageId) {
+        const page = state.pages.find(p => p.id === savedState.currentPageId);
+        if (page) {
+          const pageData = await api.pages.get(savedState.currentWorkspaceId, savedState.currentPageId);
+          state.currentPageId = savedState.currentPageId;
+          state.currentPageSource = 'workspace';
+          state.currentPagePermission = null;
+          state.currentView = 'workspace';
+          ui.showPageView(pageData.page);
+          ui.setShareButtonVisible(true);
+          ui.setCommentsAvailable(true);
+          resetCommentsState();
+          await loadComments(savedState.currentWorkspaceId, savedState.currentPageId);
+          saveViewState();
+        }
+      }
+      return;
+    }
+    case 'profile':
+      if (!(await loadProfile())) {
+        await loadDashboard();
+      }
+      return;
+    case 'shared-pages':
+      if (!(await loadSharedPages())) {
+        await loadDashboard();
+        return;
+      }
+      if (
+        savedState.currentPageSource === 'shared' &&
+        savedState.currentWorkspaceId &&
+        savedState.currentPageId
+      ) {
+        await openSharedPage(
+          savedState.currentWorkspaceId,
+          savedState.currentPageId,
+          savedState.currentPagePermission
+        );
+      }
+      return;
+    default:
+      await loadDashboard();
+  }
+}
+
 // ── Initialisation ──────────────────────────────────────────────────
 // Vérifie si une session existe déjà (rechargement de page)
 async function init() {
@@ -6,11 +110,24 @@ async function init() {
     state.currentUser = data.user;
     ui.showAppScreen(data.user);
     await loadWorkspaces();
-    // Affiche le dashboard par défaut au démarrage
-    await loadDashboard();
   } catch {
     // Pas de session active — on affiche l'écran de connexion
     ui.showAuthScreen();
+    return;
+  }
+
+  const savedState = getSavedViewState();
+  if (!savedState || savedState.currentView === 'empty') {
+    // Premier démarrage ou aucune vue sauvegardée → dashboard par défaut
+    await loadDashboard();
+    return;
+  }
+
+  try {
+    await restoreView(savedState);
+  } catch (err) {
+    console.warn('View restore failed, fallback to dashboard.', err);
+    await loadDashboard();
   }
 }
 
@@ -118,6 +235,10 @@ async function performLogout() {
   state.commentsOpen       = false;
   state.editingCommentId   = null;
   resetCommentsState();
+  
+  // Sauvegarder l'état vide
+  state.currentView = 'empty';
+  saveViewState();
   
   // Ferme la page active et retourne à l'état initial
   ui.showEmptyState();
@@ -303,6 +424,16 @@ async function loadSharedPages() {
     ui.renderSharedPageList(state.sharedPages);
     ui.showSharedPagesView();
 
+    state.currentView = 'shared-pages';
+    state.currentWorkspaceId = null;
+    state.currentWorkspaceRole = null;
+    state.currentPageId = null;
+    state.currentPageSource = null;
+    state.currentPagePermission = null;
+    state.pageShares = [];
+    resetCommentsState();
+    saveViewState();
+
     const sharedBtn = document.getElementById('shared-pages-btn');
     if (sharedBtn) sharedBtn.classList.add('active');
     const dashboardBtn = document.getElementById('dashboard-btn');
@@ -321,8 +452,10 @@ async function loadSharedPages() {
     if (document.body.classList.contains('sidebar-open')) {
       document.body.classList.remove('sidebar-open');
     }
+    return true;
   } catch (err) {
-    alert('Erreur lors du chargement des pages partagées: ' + err.message);
+    ui.showNotification('Erreur lors du chargement des pages partagées.');
+    return false;
   }
 }
 
@@ -345,6 +478,7 @@ async function selectWorkspace(id) {
   state.currentPageId      = null;
   state.currentPageSource  = 'workspace';
   state.currentPagePermission = null;
+  state.currentView = 'workspace';
   resetCommentsState();
 
   const data = await api.pages.list(id);
@@ -363,6 +497,9 @@ async function selectWorkspace(id) {
   ui.renderWorkspaceList(state.workspaces, id);
   ui.showWorkspaceView(workspace, state.pages);
   await loadMembers(id, workspace);
+
+  // Sauvegarder l'état de la vue
+  saveViewState();
 
   if (document.body.classList.contains('sidebar-open')) {
     document.body.classList.remove('sidebar-open');
@@ -419,6 +556,11 @@ document.getElementById('workspace-delete-form').addEventListener('submit', asyn
   state.members            = [];
   state.pages              = [];
   resetCommentsState();
+  
+  // Sauvegarder l'état vide
+  state.currentView = 'empty';
+  saveViewState();
+  
   await loadWorkspaces();
   ui.showEmptyState();
   ui.closeModal('workspace-delete-modal');
@@ -460,6 +602,11 @@ async function finalizeMemberRemoval(userId, isSelf) {
     state.members            = [];
     state.pages              = [];
     resetCommentsState();
+    
+    // Sauvegarder l'état vide
+    state.currentView = 'empty';
+    saveViewState();
+    
     await loadWorkspaces();
     ui.showEmptyState();
     ui.showNotification('Vous avez quitté le workspace');
@@ -568,6 +715,9 @@ document.getElementById('page-list').addEventListener('click', async (e) => {
   ui.setCommentsAvailable(true);
   resetCommentsState();
   await loadComments(state.currentWorkspaceId, pageId);
+  
+  // Sauvegarder l'état de la vue
+  saveViewState();
 });
 
 document.getElementById('new-page-btn').addEventListener('click', async () => {
@@ -729,6 +879,29 @@ document.getElementById('share-remove-form').addEventListener('submit', async (e
   }
 });
 
+async function openSharedPage(workspaceId, pageId, permission) {
+  const data = await api.pages.get(workspaceId, pageId);
+  state.currentWorkspaceId = workspaceId;
+  state.currentWorkspaceRole = null;
+  state.currentPageId = pageId;
+  state.currentPageSource = 'shared';
+  state.currentPagePermission = permission || 'read';
+  state.currentView = 'shared-pages';
+
+  ui.showPageView(data.page);
+  ui.setShareButtonVisible(false);
+  ui.setCommentsAvailable(false);
+  ui.setWorkspaceActions({
+    canDeleteWorkspace: false,
+    canEditPages: (permission || 'read') === 'edit',
+    canDeletePage: false,
+  });
+  resetCommentsState();
+
+  // Sauvegarder l'état de la vue
+  saveViewState();
+}
+
 document.getElementById('shared-page-list').addEventListener('click', async (e) => {
   const item = e.target.closest('.shared-page-item');
   if (!item) return;
@@ -737,39 +910,31 @@ document.getElementById('shared-page-list').addEventListener('click', async (e) 
   const pageId = parseInt(item.dataset.pageId);
   const permission = item.dataset.permission;
 
-  const data = await api.pages.get(workspaceId, pageId);
-  state.currentWorkspaceId = workspaceId;
-  state.currentWorkspaceRole = null;
-  state.currentPageId = pageId;
-  state.currentPageSource = 'shared';
-  state.currentPagePermission = permission;
-
-  ui.showPageView(data.page);
-  ui.setShareButtonVisible(false);
-  ui.setCommentsAvailable(false);
-  ui.setWorkspaceActions({
-    canDeleteWorkspace: false,
-    canEditPages: permission === 'edit',
-    canDeletePage: false,
-  });
-  resetCommentsState();
+  await openSharedPage(workspaceId, pageId, permission);
 });
 
 document.getElementById('back-to-workspace-btn').addEventListener('click', () => {
+  const wasShared = state.currentPageSource === 'shared';
   state.currentPageId = null;
   state.pageShares = [];
+  state.currentPageSource = null;
   state.currentPagePermission = null;
   resetCommentsState();
-  if (state.currentPageSource === 'shared') {
-    state.currentPageSource = null;
+  if (wasShared) {
     ui.showSharedPagesView();
     ui.renderSharedPageList(state.sharedPages);
     ui.setCommentsAvailable(true);
     ui.setShareButtonVisible(true);
+    state.currentWorkspaceId = null;
+    state.currentWorkspaceRole = null;
+    state.currentView = 'shared-pages';
+    saveViewState();
     return;
   }
   const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
+  state.currentView = 'workspace';
+  saveViewState();
 });
 
 // ── Dashboard ────────────────────────────────────────────────────────
@@ -778,6 +943,18 @@ async function loadDashboard(period = '7d') {
   const data = await api.dashboard.get(period);
   ui.renderDashboard(data);
   ui.showDashboard();
+  
+  // Sauvegarder l'état de la vue
+  state.currentView = 'dashboard';
+  state.currentWorkspaceId = null;
+  state.currentWorkspaceRole = null;
+  state.currentPageId = null;
+  state.currentPageSource = null;
+  state.currentPagePermission = null;
+  state.pageShares = [];
+  resetCommentsState();
+  saveViewState();
+  
   const dashboardBtn = document.getElementById('dashboard-btn');
   if (dashboardBtn) dashboardBtn.classList.add('active');
   const sharedBtn = document.getElementById('shared-pages-btn');
@@ -823,6 +1000,16 @@ async function loadProfile() {
     const data = await api.profile.me();
     ui.renderProfile(data.user);
     ui.showProfile();
+
+    state.currentView = 'profile';
+    state.currentWorkspaceId = null;
+    state.currentWorkspaceRole = null;
+    state.currentPageId = null;
+    state.currentPageSource = null;
+    state.currentPagePermission = null;
+    state.pageShares = [];
+    resetCommentsState();
+    saveViewState();
     // Marquer le user-info comme actif
     const userInfo = document.getElementById('user-info');
     if (userInfo) userInfo.classList.add('active');
@@ -840,8 +1027,10 @@ async function loadProfile() {
     if (document.body.classList.contains('sidebar-open')) {
       document.body.classList.remove('sidebar-open');
     }
+    return true;
   } catch (err) {
-    alert('Erreur lors du chargement du profil: ' + err.message);
+    ui.showNotification('Erreur lors du chargement du profil.');
+    return false;
   }
 }
 

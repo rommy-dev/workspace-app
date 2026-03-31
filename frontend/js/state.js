@@ -2,6 +2,7 @@
 // Jamais modifié directement depuis ui.js — seulement depuis app.js.
 const state = {
   currentUser:        null,  // { id, name, email, avatar_url }
+  currentView:        'dashboard', // 'dashboard' | 'workspace' | 'profile' | 'shared-pages' | 'empty'
   workspaces:         [],    // tableau complet
   currentWorkspaceId: null,
   currentWorkspaceRole: null, // owner | admin | editor | viewer
