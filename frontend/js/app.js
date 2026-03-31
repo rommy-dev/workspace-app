@@ -848,6 +848,13 @@ async function loadProfile() {
 // Lien vers le profil depuis le user-info de la sidebar
 document.getElementById('user-info').addEventListener('click', loadProfile);
 
+const profileLogoutBtn = document.getElementById('profile-logout-btn');
+if (profileLogoutBtn) {
+  profileLogoutBtn.addEventListener('click', () => {
+    ui.openModal('logout-modal');
+  });
+}
+
 // Ouvre le modal agrandi sur clic avatar dans la vue profil
 const profileAvatarImg = document.getElementById('profile-avatar-img');
 if (profileAvatarImg) {
@@ -878,7 +885,6 @@ const mobileDashboardBtn = document.getElementById('mobile-dashboard-btn');
 const mobileSharedBtn = document.getElementById('mobile-shared-btn');
 const mobileWorkspacesBtn = document.getElementById('mobile-workspaces-btn');
 const mobileProfileBtn = document.getElementById('mobile-profile-btn');
-const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
 
 if (mobileDashboardBtn) {
   mobileDashboardBtn.addEventListener('click', async () => {
@@ -963,11 +969,6 @@ if (mobileProfileBtn) {
   });
 }
 
-if (mobileLogoutBtn) {
-  mobileLogoutBtn.addEventListener('click', () => {
-    ui.openModal('logout-modal');
-  });
-}
 
 // Formulaire Infos profile (name, email, avatar upload)
 document.getElementById('profile-info-form').addEventListener('submit', async (e) => {

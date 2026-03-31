@@ -1889,6 +1889,26 @@ body.sidebar-collapsed .workspace-item { padding: .5rem; }
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  position: relative;
+}
+
+.profile-logout-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: none;
+  padding: .5rem .8rem;
+  border-radius: 999px;
+  background: #1a1a1a;
+  color: #ffffff;
+  border-color: #1a1a1a;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.profile-logout-btn:hover { background: #333; }
+
+@media (max-width: 900px) {
+  .profile-logout-btn { display: inline-flex; }
 }
 
 .profile-card {
