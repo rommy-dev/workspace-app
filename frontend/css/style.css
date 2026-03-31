@@ -508,11 +508,11 @@ body.sidebar-collapsed .user-meta span {
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid #e8e8e8;
-  padding-top: 1rem;
+  padding-top: 1rem; 
   width: 100%;
 }
 
-#sidebar-header h2 { font-size: .9rem; color: #888; text-transform: uppercase; letter-spacing: .05em; }
+#sidebar-header h2 { font-size: .9rem; color: #888; text-transform: uppercase; letter-spacing: .05em; display: inline-flex; align-items: center; gap: 8px;}
 #new-workspace-btn { border: none; background: none; font-size: 1.4rem; cursor: pointer; color: #555; padding: 0 .25rem; }
 
 #workspace-list { list-style: none; flex: 1; overflow-y: auto; }
@@ -597,7 +597,7 @@ body.sidebar-collapsed #sidebar-toggle { left: 72px; transition: all 0.2s ease-i
 body.sidebar-collapsed #user-name { display: none; }
 body.sidebar-collapsed #sidebar-header { justify-content: center; }
 body.sidebar-collapsed #sidebar-header .label-full { display: none; }
-body.sidebar-collapsed #sidebar-header .label-short { display: inline; }
+body.sidebar-collapsed #sidebar-header .label-short,  body.sidebar-collapsed #sidebar-header h2 { display: inline; }
 body.sidebar-collapsed #new-workspace-btn { display: none; }
 body.sidebar-collapsed .workspace-item { justify-content: center; }
 body.sidebar-collapsed .workspace-item .ws-name { display: none; }
