@@ -38,6 +38,14 @@ class PageShareController
         $this->respond(200, ['shares' => $shares]);
     }
 
+    // GET /api/pages/shared
+    public function sharedIndex(array $params): void
+    {
+        $userId = $_SESSION['user_id'];
+        $pages = $this->pageShareModel->findPagesSharedWithUser($userId);
+        $this->respond(200, ['pages' => $pages]);
+    }
+
     // POST /api/workspaces/{workspaceId}/pages/{pageId}/shares
     // Body : { "email": "bob@test.com", "permission": "read" }
     public function store(array $params): void

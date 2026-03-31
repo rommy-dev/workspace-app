@@ -128,6 +128,11 @@ $router->delete('/api/workspaces/{workspaceId}/pages/{id}',
     [Controllers\PageController::class, 'destroy'],
     [AuthMiddleware::class]);
 
+// ── Pages partagées avec moi ───────────────────────────────────────
+$router->get('/api/pages/shared',
+    [Controllers\PageShareController::class, 'sharedIndex'],
+    [AuthMiddleware::class]);
+
 // ── Partage de pages ───────────────────────────────────────────────
 $router->get('/api/workspaces/{workspaceId}/pages/{pageId}/shares',
     [Controllers\PageShareController::class, 'index'],

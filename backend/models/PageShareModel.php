@@ -84,4 +84,27 @@ class PageShareModel
 
         return $stmt->rowCount() > 0;
     }
+
+    public function findPagesSharedWithUser(int $userId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT ps.permission,
+                   ps.created_at AS shared_at,
+                   p.id AS page_id,
+                   p.title,
+                   p.workspace_id,
+                   p.updated_at,
+                   w.name AS workspace_name,
+                   u.name AS owner_name
+            FROM page_shares ps
+            JOIN pages p ON p.id = ps.page_id
+            JOIN workspaces w ON w.id = p.workspace_id
+            LEFT JOIN users u ON u.id = p.owner_id
+            WHERE ps.user_id = ?
+            ORDER BY ps.created_at DESC
+        ");
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll();
+    }
 }
