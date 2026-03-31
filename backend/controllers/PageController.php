@@ -3,16 +3,19 @@
 namespace Controllers;
 
 use Models\PageModel;
+use Models\PageShareModel;
 use Models\WorkspaceModel;
 
 class PageController
 {
     private PageModel $pageModel;
+    private PageShareModel $pageShareModel;
     private WorkspaceModel $workspaceModel;
 
     public function __construct()
     {
         $this->pageModel      = new PageModel();
+        $this->pageShareModel = new PageShareModel();
         $this->workspaceModel = new WorkspaceModel();
     }
 
@@ -53,9 +56,7 @@ class PageController
     // GET /api/workspaces/{workspaceId}/pages/{id}
     public function show(array $params): void
     {
-        if (!$this->resolveWorkspaceAccess((int) $params['workspaceId'])) return;
-
-        $page = $this->resolvePage((int) $params['id'], (int) $params['workspaceId']);
+        $page = $this->resolvePageForRead((int) $params['id'], (int) $params['workspaceId']);
         if ($page === null) return;
 
         $this->respond(200, ['page' => $page]);
@@ -65,10 +66,7 @@ class PageController
     public function update(array $params): void
     {
         $workspaceId = (int) $params['workspaceId'];
-        if (!$this->resolveWorkspaceAccess($workspaceId)) return;
-        if (!$this->requirePageWriteAccess($workspaceId)) return;
-
-        $page = $this->resolvePage((int) $params['id'], (int) $params['workspaceId']);
+        $page = $this->resolvePageForEdit((int) $params['id'], $workspaceId);
         if ($page === null) return;
 
         $body = $this->getJsonBody();
@@ -136,6 +134,61 @@ class PageController
         }
 
         return true;
+    }
+
+    private function resolvePageForRead(int $pageId, int $workspaceId): ?array
+    {
+        $workspace = $this->workspaceModel->findById($workspaceId);
+
+        if ($workspace === null) {
+            $this->respond(404, ['error' => 'Workspace introuvable.']);
+            return null;
+        }
+
+        $page = $this->resolvePage($pageId, $workspaceId);
+        if ($page === null) return null;
+
+        $userId = $_SESSION['user_id'];
+
+        if ($this->workspaceModel->userHasAccess($workspaceId, $userId)) {
+            return $page;
+        }
+
+        $permission = $this->pageShareModel->getPermissionForUser($pageId, $userId);
+        if ($permission !== null) {
+            return $page;
+        }
+
+        $this->respond(403, ['error' => 'Accès non autorisé à cette page.']);
+        return null;
+    }
+
+    private function resolvePageForEdit(int $pageId, int $workspaceId): ?array
+    {
+        $workspace = $this->workspaceModel->findById($workspaceId);
+
+        if ($workspace === null) {
+            $this->respond(404, ['error' => 'Workspace introuvable.']);
+            return null;
+        }
+
+        $page = $this->resolvePage($pageId, $workspaceId);
+        if ($page === null) return null;
+
+        $userId = $_SESSION['user_id'];
+        $role = $this->workspaceModel->getUserRole($workspaceId, $userId);
+
+        if ($role !== null && in_array($role, ['owner', 'admin', 'editor'], true)) {
+            return $page;
+        }
+
+        $permission = $this->pageShareModel->getPermissionForUser($pageId, $userId);
+        if ($permission === 'edit') {
+            return $page;
+        }
+
+        $this->respond(403, ['error' => 'Permissions insuffisantes pour modifier cette page.']);
+        return null;
     }
 
     // Vérifie que la page existe ET appartient bien à ce workspace

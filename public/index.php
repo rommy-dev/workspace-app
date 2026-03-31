@@ -128,6 +128,23 @@ $router->delete('/api/workspaces/{workspaceId}/pages/{id}',
     [Controllers\PageController::class, 'destroy'],
     [AuthMiddleware::class]);
 
+// ── Partage de pages ───────────────────────────────────────────────
+$router->get('/api/workspaces/{workspaceId}/pages/{pageId}/shares',
+    [Controllers\PageShareController::class, 'index'],
+    [AuthMiddleware::class]);
+
+$router->post('/api/workspaces/{workspaceId}/pages/{pageId}/shares',
+    [Controllers\PageShareController::class, 'store'],
+    [AuthMiddleware::class]);
+
+$router->put('/api/workspaces/{workspaceId}/pages/{pageId}/shares/{userId}',
+    [Controllers\PageShareController::class, 'update'],
+    [AuthMiddleware::class]);
+
+$router->delete('/api/workspaces/{workspaceId}/pages/{pageId}/shares/{userId}',
+    [Controllers\PageShareController::class, 'destroy'],
+    [AuthMiddleware::class]);
+
     // ── Commentaires ──────────────────────────────────────────────────
 $router->get('/api/workspaces/{workspaceId}/pages/{pageId}/comments',
     [Controllers\CommentController::class, 'index'],
