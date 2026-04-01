@@ -42,39 +42,153 @@
   <!-- ── Écran d'authentification ───────────────────────────── -->
   <div id="auth-screen">
     <div class="auth-card">
-      <h1>Workspace App</h1>
-
-      <div id="auth-tabs">
-        <button class="tab active" data-tab="login">Connexion</button>
-        <button class="tab" data-tab="register">Inscription</button>
+      <div class="auth-header">
+        <div class="auth-brand">
+          <img src="/favicon/favicon-32x32.png" alt="Workspace App" class="auth-logo">
+          <h1>Workspace App</h1>
+        </div>
       </div>
 
       <!-- Login -->
-      <div id="login-form" class="auth-form">
-        <input type="email" id="login-email" placeholder="Email" autocomplete="email">
-        <div class="input-with-icon">
-          <input type="password" id="login-password" placeholder="Mot de passe">
-          <button type="button" class="toggle-password" data-target="login-password" aria-label="Afficher le mot de passe" aria-pressed="false">
-            <i data-lucide="eye"></i>
-          </button>
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="auth-microcopy">
+          <p class="auth-subtitle">Bon retour !</p>
+          <p class="auth-hint">Connectez-vous pour continuer.</p>
         </div>
-        <div class="form-error" id="login-error"></div>
-        <button id="login-btn">Se connecter</button>
-      </div>
+        <div class="form-field">
+          <label for="login-email">Email</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="ex: nom@domaine.com"
+            autocomplete="email"
+            inputmode="email"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+            aria-describedby="login-email-message"
+            autofocus
+          >
+          <div class="field-feedback" id="login-email-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="login-email-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="login-password">Mot de passe</label>
+          <div class="input-with-icon">
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="Votre mot de passe"
+              autocomplete="current-password"
+              required
+              aria-describedby="login-password-message"
+            >
+            <button type="button" class="toggle-password" data-target="login-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+          <div class="field-feedback" id="login-password-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="login-password-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="auth-security">
+          <i data-lucide="lock" class="icon"></i>
+          <span>Connexion protégée</span>
+        </div>
+        <div class="form-error" id="login-error" aria-live="polite"></div>
+        <button id="login-btn" class="auth-submit" type="submit" data-default-text="Se connecter" disabled>
+          <span class="btn-text">Se connecter</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="auth-links">
+          <span>Pas encore de compte ? </span>
+          <a href="#" class="auth-link" data-switch-auth="register">Créer un compte</a>
+        </div>
+      </form>
 
       <!-- Register -->
-      <div id="register-form" class="auth-form hidden">
-        <input type="text" id="register-name" placeholder="Nom complet">
-        <input type="email" id="register-email" placeholder="Email">
-        <div class="input-with-icon">
-          <input type="password" id="register-password" placeholder="Mot de passe (8 car. min)">
-          <button type="button" class="toggle-password" data-target="register-password" aria-label="Afficher le mot de passe" aria-pressed="false">
-            <i data-lucide="eye"></i>
-          </button>
+      <form id="register-form" class="auth-form hidden" novalidate>
+        <div class="auth-microcopy">
+          <p class="auth-subtitle">Créez votre espace.</p>
+          <p class="auth-hint">Quelques infos et c'est parti.</p>
         </div>
-        <div class="form-error" id="register-error"></div>
-        <button id="register-btn">Créer un compte</button>
-      </div>
+        <div class="form-field">
+          <label for="register-name">Nom complet</label>
+          <input
+            type="text"
+            id="register-name"
+            name="name"
+            placeholder="Votre nom"
+            autocomplete="name"
+            minlength="2"
+            required
+            aria-describedby="register-name-message"
+          >
+          <div class="field-feedback" id="register-name-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-name-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="register-email">Email</label>
+          <input
+            type="email"
+            id="register-email"
+            name="email"
+            placeholder="ex: nom@domaine.com"
+            autocomplete="email"
+            inputmode="email"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+            aria-describedby="register-email-message"
+          >
+          <div class="field-feedback" id="register-email-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-email-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="register-password">Mot de passe</label>
+          <div class="input-with-icon">
+            <input
+              type="password"
+              id="register-password"
+              name="password"
+              placeholder="8 caractères min."
+              autocomplete="new-password"
+              minlength="8"
+              required
+              aria-describedby="register-password-message"
+            >
+            <button type="button" class="toggle-password" data-target="register-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+          <div class="field-feedback" id="register-password-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-password-message" class="field-message"></span>
+          </div>
+          <div class="password-strength" id="register-password-strength" aria-live="polite">
+            <div class="strength-meter"><span></span></div>
+            <span class="strength-text">Mot de passe sécurisé</span>
+          </div>
+        </div>
+        <div class="form-error" id="register-error" aria-live="polite"></div>
+        <button id="register-btn" class="auth-submit" type="submit" data-default-text="Créer un compte" disabled>
+          <span class="btn-text">Créer un compte</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="auth-links">
+          <span>Déjà inscrit ?</span>
+          <a href="#" class="auth-link" data-switch-auth="login">Se connecter</a>
+        </div>
+      </form>
     </div>
   </div>
 

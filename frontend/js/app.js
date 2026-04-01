@@ -149,16 +149,252 @@ function closeCurrentPage() {
 }
 
 // ── Auth ────────────────────────────────────────────────────────────
-document.getElementById('login-btn').addEventListener('click', async () => {
+const AUTH_FIELD_RULES = {
+  'login-email': {
+    required: true,
+    validator: value => isEmailValid(value),
+    invalidMessage: 'Email invalide.',
+    validMessage: 'Email valide.'
+  },
+  'login-password': {
+    required: true,
+    validator: value => value.length > 0,
+    invalidMessage: 'Mot de passe requis.',
+    validMessage: 'Champ correct.'
+  },
+  'register-name': {
+    required: true,
+    validator: value => value.length >= 2,
+    invalidMessage: 'Nom complet requis (2 caractères min).',
+    validMessage: 'Champ correct.'
+  },
+  'register-email': {
+    required: true,
+    validator: value => isEmailValid(value),
+    invalidMessage: 'Email invalide.',
+    validMessage: 'Email valide.'
+  },
+  'register-password': {
+    required: true,
+    validator: value => value.length >= 8,
+    invalidMessage: '8 caractères minimum.',
+    validMessage: 'Mot de passe valide.'
+  },
+};
+
+function isEmailValid(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function setFieldFeedback(input, state, message) {
+  const field = input.closest('.form-field');
+  if (!field) return;
+  const feedback = field.querySelector('.field-feedback');
+  const messageEl = field.querySelector('.field-message');
+  const iconEl = field.querySelector('.field-status-icon');
+  if (!feedback || !messageEl) return;
+
+  feedback.classList.remove('is-valid', 'is-invalid');
+  input.classList.remove('is-valid', 'is-invalid');
+
+  if (state === 'neutral') {
+    messageEl.textContent = '';
+    return;
+  }
+
+  feedback.classList.add(state === 'valid' ? 'is-valid' : 'is-invalid');
+  input.classList.add(state === 'valid' ? 'is-valid' : 'is-invalid');
+  messageEl.textContent = message;
+
+  if (iconEl) {
+    iconEl.setAttribute('data-lucide', state === 'valid' ? 'check-circle' : 'alert-circle');
+    ui.refreshIcons();
+  }
+}
+
+function evaluateAuthField(input, { showFeedback = true } = {}) {
+  const rule = AUTH_FIELD_RULES[input.id];
+  if (!rule) return true;
+
+  const value = input.value.trim();
+  if (!value) {
+    if (showFeedback) setFieldFeedback(input, 'neutral', '');
+    input.setAttribute('aria-invalid', 'false');
+    return false;
+  }
+
+  const valid = rule.validator(value);
+  input.setAttribute('aria-invalid', valid ? 'false' : 'true');
+
+  if (showFeedback) {
+    setFieldFeedback(
+      input,
+      valid ? 'valid' : 'invalid',
+      valid ? rule.validMessage : rule.invalidMessage
+    );
+  }
+
+  return valid;
+}
+
+function validateAuthForm(formType, showFeedback = true) {
+  const fieldIds = formType === 'login'
+    ? ['login-email', 'login-password']
+    : ['register-name', 'register-email', 'register-password'];
+
+  return fieldIds.every((id) => {
+    const input = document.getElementById(id);
+    if (!input) return false;
+    return evaluateAuthField(input, { showFeedback });
+  });
+}
+
+function updatePasswordStrength(value) {
+  const strengthEl = document.getElementById('register-password-strength');
+  if (!strengthEl) return;
+  const meter = strengthEl.querySelector('.strength-meter span');
+  const text = strengthEl.querySelector('.strength-text');
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    strengthEl.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+    if (meter) meter.style.width = '0%';
+    if (text) text.textContent = 'Mot de passe sécurisé';
+    return;
+  }
+
+  if (trimmed.length < 8) {
+    strengthEl.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+    strengthEl.classList.add('strength-weak');
+    if (meter) {
+      const percent = Math.max(10, Math.round((trimmed.length / 8) * 40));
+      meter.style.width = `${percent}%`;
+    }
+    if (text) text.textContent = 'Sécurité : Faible';
+    return;
+  }
+
+  let score = 1;
+  if (/[a-z]/.test(trimmed)) score += 1;
+  if (/[A-Z]/.test(trimmed)) score += 1;
+  if (/[0-9]/.test(trimmed)) score += 1;
+  if (/[^A-Za-z0-9]/.test(trimmed)) score += 1;
+
+  const percent = Math.min(100, Math.round((score / 5) * 100));
+  if (meter) meter.style.width = `${percent}%`;
+
+  strengthEl.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+
+  let label = 'Faible';
+  let strengthClass = 'strength-weak';
+  if (score >= 4) {
+    label = 'Fort';
+    strengthClass = 'strength-strong';
+  } else if (score >= 3) {
+    label = 'Moyen';
+    strengthClass = 'strength-medium';
+  }
+
+  strengthEl.classList.add(strengthClass);
+  if (text) text.textContent = `Sécurité : ${label}`;
+}
+
+function updateAuthButtons() {
+  const loginBtn = document.getElementById('login-btn');
+  const registerBtn = document.getElementById('register-btn');
+
+  const loginValid = validateAuthForm('login', false);
+  const registerValid = validateAuthForm('register', false);
+
+  if (loginBtn && !loginBtn.classList.contains('is-loading')) {
+    loginBtn.disabled = !loginValid;
+  }
+  if (registerBtn && !registerBtn.classList.contains('is-loading')) {
+    registerBtn.disabled = !registerValid;
+  }
+}
+
+function resetAuthForm(formType) {
+  const form = document.getElementById(`${formType}-form`);
+  if (!form) return;
+  form.querySelectorAll('input').forEach((input) => {
+    input.classList.remove('is-valid', 'is-invalid');
+    input.setAttribute('aria-invalid', 'false');
+    setFieldFeedback(input, 'neutral', '');
+  });
+  if (formType === 'register') {
+    updatePasswordStrength('');
+  }
+  updateAuthButtons();
+}
+
+function setButtonLoading(button, isLoading, loadingText) {
+  if (!button) return;
+  const textEl = button.querySelector('.btn-text');
+  if (!button.dataset.defaultText && textEl) {
+    button.dataset.defaultText = textEl.textContent.trim();
+  }
+  if (textEl) {
+    textEl.textContent = isLoading
+      ? loadingText
+      : (button.dataset.defaultText || textEl.textContent);
+  }
+  button.classList.toggle('is-loading', isLoading);
+  button.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+  if (isLoading) {
+    button.disabled = true;
+  }
+}
+
+function focusAuthFirstInput(tabName) {
+  const form = document.getElementById(`${tabName}-form`);
+  if (!form) return;
+  const firstInput = form.querySelector('input');
+  if (firstInput) firstInput.focus();
+}
+
+function getActiveAuthTab() {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm && !loginForm.classList.contains('hidden')) return 'login';
+  const registerForm = document.getElementById('register-form');
+  if (registerForm && !registerForm.classList.contains('hidden')) return 'register';
+  return 'login';
+}
+
+function switchAuthTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.auth-form').forEach(form => {
+    form.classList.toggle('hidden', form.id !== `${tabName}-form`);
+  });
   ui.clearError('login-error');
-  const email    = ui.val('login-email');
+  ui.clearError('register-error');
+  focusAuthFirstInput(tabName);
+  updateAuthButtons();
+}
+
+async function handleLoginSubmit(e) {
+  e.preventDefault();
+  ui.clearError('login-error');
+
+  if (!validateAuthForm('login', true)) {
+    updateAuthButtons();
+    return;
+  }
+
+  const email = ui.val('login-email');
   const password = ui.val('login-password');
+  const loginBtn = document.getElementById('login-btn');
+
+  setButtonLoading(loginBtn, true, 'Connexion...');
 
   try {
     const data = await api.auth.login(email, password);
     state.currentUser = data.user;
     ui.clearVal('login-email');
     ui.clearVal('login-password');
+    resetAuthForm('login');
     ui.clearError('login-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
@@ -168,21 +404,27 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     ui.showNotification('Connexion réussie !');
   } catch (err) {
     ui.showError('login-error', err.message);
+  } finally {
+    setButtonLoading(loginBtn, false);
+    updateAuthButtons();
   }
-});
+}
 
-// Event listener pour la touche Entrée sur le champ de mot de passe de connexion
-document.getElementById('login-password').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('login-btn').click();
-  }
-});
-
-document.getElementById('register-btn').addEventListener('click', async () => {
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
   ui.clearError('register-error');
-  const name     = ui.val('register-name');
-  const email    = ui.val('register-email');
+
+  if (!validateAuthForm('register', true)) {
+    updateAuthButtons();
+    return;
+  }
+
+  const name = ui.val('register-name');
+  const email = ui.val('register-email');
   const password = ui.val('register-password');
+  const registerBtn = document.getElementById('register-btn');
+
+  setButtonLoading(registerBtn, true, 'Création...');
 
   try {
     const data = await api.auth.register(name, email, password);
@@ -190,6 +432,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     ui.clearVal('register-name');
     ui.clearVal('register-email');
     ui.clearVal('register-password');
+    resetAuthForm('register');
     ui.clearError('register-error');
     ui.showAppScreen(data.user);
     await loadWorkspaces();
@@ -203,15 +446,50 @@ document.getElementById('register-btn').addEventListener('click', async () => {
       ? Object.values(err.errors).join(' ')
       : err.message;
     ui.showError('register-error', msg);
+  } finally {
+    setButtonLoading(registerBtn, false);
+    updateAuthButtons();
   }
-});
+}
 
-// Event listener pour la touche Entrée sur le champ de mot de passe d'inscription
-document.getElementById('register-password').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('register-btn').click();
-  }
-}); 
+function initAuthEnhancements() {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
+
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) registerForm.addEventListener('submit', handleRegisterSubmit);
+
+  document.querySelectorAll('#auth-screen input').forEach((input) => {
+    input.addEventListener('input', () => {
+      if (input.id === 'register-password') {
+        updatePasswordStrength(input.value);
+      }
+      evaluateAuthField(input, { showFeedback: true });
+      if (input.closest('#login-form')) {
+        ui.clearError('login-error');
+      } else {
+        ui.clearError('register-error');
+      }
+      updateAuthButtons();
+    });
+
+    input.addEventListener('blur', () => {
+      evaluateAuthField(input, { showFeedback: true });
+      updateAuthButtons();
+    });
+  });
+
+  document.querySelectorAll('[data-switch-auth]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchAuthTab(link.dataset.switchAuth);
+    });
+  });
+
+  updatePasswordStrength('');
+  updateAuthButtons();
+  focusAuthFirstInput('login');
+}
 
 async function performLogout() {
   await api.auth.logout();
@@ -245,6 +523,8 @@ async function performLogout() {
   
   // Affiche l'écran d'authentification
   ui.showAuthScreen();
+  focusAuthFirstInput(getActiveAuthTab());
+  updateAuthButtons();
   
   // Ferme la page active après déconnexion
   setTimeout(() => {
@@ -367,16 +647,6 @@ function initModals() {
     modalIds.forEach(id => ui.closeModal(id));
   });
 }
-
-// ── Tabs auth ───────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.add('hidden'));
-    document.getElementById(tab.dataset.tab + '-form').classList.remove('hidden');
-  });
-});
 
 // ── Workspaces ──────────────────────────────────────────────────────
 function roleCanEditPages(role) {
@@ -1391,3 +1661,4 @@ initPasswordToggles();
 initLucideIcons();
 initSidebarToggle();
 initModals();
+initAuthEnhancements();
