@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Workspace App</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ── Global loader d'attente API ───────────────────────────────── -->
+  <div id="global-loader" class="global-loader hidden" role="status" aria-live="polite" aria-label="Chargement en cours" aria-hidden="true">
+    <div class="loader-overlay">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- ── Popup de notification ───────────────────────────────────── -->
+  <div id="notification-popup" class="notification-popup hidden">
+    <div class="notification-content">
+      <i data-lucide="check-circle" class="notification-icon"></i>
+      <span id="notification-message"></span>
+    </div>
+  </div>
+
+  <!-- ── Avatar fullscreen modal ─────────────────────────────────── -->
+  <div id="avatar-modal" class="avatar-modal hidden" role="dialog" aria-modal="true" aria-label="Avatar utilisateur agrandi">
+    <div class="avatar-modal-backdrop" data-action="close-avatar"></div>
+    <div class="avatar-modal-content">
+      <button class="avatar-modal-close" data-action="close-avatar" aria-label="Fermer">
+        X
+      </button>
+      <img id="avatar-modal-image" src="" alt="Avatar agrandi" />
+    </div>
+  </div>
+
+  <!-- ── Écran d'authentification ───────────────────────────── -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand">
+          <img src="/favicon/favicon-32x32.png" alt="Workspace App" class="auth-logo">
+          <h1>Workspace App</h1>
+        </div>
+      </div>
+
+      <!-- Login -->
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="auth-microcopy">
+          <p class="auth-subtitle">Bon retour !</p>
+          <p class="auth-hint">Connectez-vous pour continuer.</p>
+        </div>
+        <div class="form-field">
+          <label for="login-email">Email</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="ex: nom@domaine.com"
+            autocomplete="email"
+            inputmode="email"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+            aria-describedby="login-email-message"
+            autofocus
+          >
+          <div class="field-feedback" id="login-email-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="login-email-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="login-password">Mot de passe</label>
+          <div class="input-with-icon">
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="Votre mot de passe"
+              autocomplete="current-password"
+              required
+              aria-describedby="login-password-message"
+            >
+            <button type="button" class="toggle-password" data-target="login-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+          <div class="field-feedback" id="login-password-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="login-password-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="auth-security">
+          <i data-lucide="lock" class="icon"></i>
+          <span>Connexion protégée</span>
+        </div>
+        <div class="form-error" id="login-error" aria-live="polite"></div>
+        <button id="login-btn" class="auth-submit" type="submit" data-default-text="Se connecter" disabled>
+          <span class="btn-text">Se connecter</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="auth-links">
+          <span>Pas encore de compte ? </span>
+          <a href="#" class="auth-link" data-switch-auth="register">Créer un compte</a>
+        </div>
+      </form>
+
+      <!-- Register -->
+      <form id="register-form" class="auth-form hidden" novalidate>
+        <div class="auth-microcopy">
+          <p class="auth-subtitle">Créez votre espace.</p>
+          <p class="auth-hint">Quelques infos et c'est parti.</p>
+        </div>
+        <div class="form-field">
+          <label for="register-name">Nom complet</label>
+          <input
+            type="text"
+            id="register-name"
+            name="name"
+            placeholder="Votre nom"
+            autocomplete="name"
+            minlength="2"
+            required
+            aria-describedby="register-name-message"
+          >
+          <div class="field-feedback" id="register-name-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-name-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="register-email">Email</label>
+          <input
+            type="email"
+            id="register-email"
+            name="email"
+            placeholder="ex: nom@domaine.com"
+            autocomplete="email"
+            inputmode="email"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+            aria-describedby="register-email-message"
+          >
+          <div class="field-feedback" id="register-email-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-email-message" class="field-message"></span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="register-password">Mot de passe</label>
+          <div class="input-with-icon">
+            <input
+              type="password"
+              id="register-password"
+              name="password"
+              placeholder="8 caractères min."
+              autocomplete="new-password"
+              minlength="8"
+              required
+              aria-describedby="register-password-message"
+            >
+            <button type="button" class="toggle-password" data-target="register-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+              <i data-lucide="eye"></i>
+            </button>
+          </div>
+          <div class="field-feedback" id="register-password-feedback" aria-live="polite">
+            <i data-lucide="check-circle" class="field-status-icon"></i>
+            <span id="register-password-message" class="field-message"></span>
+          </div>
+          <div class="password-strength" id="register-password-strength" aria-live="polite">
+            <div class="strength-meter"><span></span></div>
+            <span class="strength-text">Mot de passe sécurisé</span>
+          </div>
+        </div>
+        <div class="form-error" id="register-error" aria-live="polite"></div>
+        <button id="register-btn" class="auth-submit" type="submit" data-default-text="Créer un compte" disabled>
+          <span class="btn-text">Créer un compte</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="auth-links">
+          <span>Déjà inscrit ?</span>
+          <a href="#" class="auth-link" data-switch-auth="login">Se connecter</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── App principale (masquée jusqu'à la connexion) ──────── -->
+  <div id="app-screen" class="hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div id="user-info" class="clickable">
+        <div class="user-avatar">
+          <img id="user-avatar-img" alt="Avatar utilisateur" src="">
+          <span id="user-avatar-fallback" class="avatar-fallback sidebar-avatar-fallback"></span>
+        </div>
+        <div class="user-meta">
+          <span id="user-name"></span>
+        </div>
+      </div>
+
+      <div id="sidebar-header">
+        <button id="dashboard-btn" class="sidebar-link" aria-label="Dashboard" title="Dashboard">
+          <i data-lucide="layout-dashboard" class="icon"></i>
+          <span class="label-full">Dashboard</span>
+        </button>
+        <button id="shared-pages-btn" class="sidebar-link" aria-label="Partages" title="Partages">
+          <i data-lucide="share-2" class="icon"></i>
+          <span class="label-full">Partages</span>
+        </button>
+        <div class="workspace-sidebar-header">
+          <h2>
+            <i data-lucide="layers" class="icon"></i>
+            <span class="label-full">Workspaces</span>
+          </h2>
+          <button id="new-workspace-btn">
+            <i data-lucide="plus" class="icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <ul id="workspace-list"></ul>
+
+      <div id="sidebar-footer">
+        <button id="logout-btn" class="btn-logout">
+          <i data-lucide="log-out" class="icon"></i>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </aside>
+
+    <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Fermer le menu" aria-pressed="false">
+      <span class="icon-sidebar-toggle">></span>
+    </button>
+
+    <!-- Main content -->
+    <main id="main-content">
+
+      <!-- État vide — aucun workspace sélectionné -->
+      <div id="empty-state">
+        <p>Sélectionne un workspace ou crée-en un.</p>
+      </div>
+
+      <!-- Vue workspace — affichée quand un workspace est sélectionné -->
+      <div id="workspace-view" class="hidden">
+        <div id="workspace-header">
+          <h2 id="workspace-title"></h2>
+          <button id="new-collab-btn">
+            <i data-lucide="user-plus" class="icon"></i> 
+            <span class="label-full">Collaborateur</span>
+          </button>
+          <button id="new-page-btn">
+            <i data-lucide="plus" class="icon"></i> 
+            <span class="label-full">Nouvelle page</span>
+          </button>
+          <button id="delete-workspace-btn" class="btn-danger">
+            <i data-lucide="trash-2" class="icon"></i> 
+            <span class="label-full">Supprimer</span>
+          </button>
+        </div>
+        <div id="workspace-collab" class="hidden">
+          <div class="collab-header">
+            <h3>Collaborateurs</h3>
+            <div class="collab-header-actions">
+              <span id="current-role-badge" class="role-badge"></span>
+            </div>
+            <button id="close-collab-btn" class="btn-close" aria-label="Fermer">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <form id="invite-form" class="collab-invite hidden">
+            <div class="form-input">
+              <p class="form-label">Ajouter un collaborateur</p>
+              <input type="email" id="invite-email" placeholder="Email du membre">
+            </div>
+            <select id="invite-role">
+              <option value="viewer">Lecteur</option>
+              <option value="editor">Éditeur</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button id="invite-btn" type="submit">
+              <i data-lucide="user-plus" class="icon"></i>
+              Inviter
+            </button>
+          </form>
+          <div class="form-error" id="invite-error"></div>
+
+          <p class="form-label">Membres</p>
+          <ul id="member-list"></ul>
+        </div>
+        <ul id="page-list"></ul>
+      </div>
+
+      <!-- Vue page — affichée quand une page est sélectionnée -->
+      <div id="page-view" class="hidden">
+        <div id="page-header">
+          <div class="page-header-left">
+            <button id="back-to-workspace-btn">
+              <i data-lucide="arrow-left" class="icon"></i> 
+              <span class="label-full">Retour</span>
+            </button>
+            <input type="text" id="page-title-input" placeholder="Titre de la page">
+          </div>
+          <div class="page-header-right">
+            <button id="share-page-btn">
+              <i data-lucide="share-2" class="icon"></i>
+              <span class="label-full">Partager</span>
+            </button>
+            <button id="save-page-btn">
+              <i data-lucide="save" class="icon"></i> 
+              <span class="label-full">Sauvegarder</span>
+            </button>
+            <button id="delete-page-btn" class="btn-danger">
+              <i data-lucide="trash-2" class="icon"></i> 
+              <span class="label-full">Supprimer</span>
+          </button>
+          </div>
+        </div>
+        <div class="page-content-container">
+          <textarea id="page-content-input" placeholder="Contenu de la page..."></textarea>
+          <div id="comments-container" class="comments-btn-container">
+            <button id="comments-btn" class="comments-btn" type="button" aria-expanded="false" aria-controls="comments-panel">
+              <i data-lucide="message-circle" class="icon"></i>
+            </button>
+            <!-- Nombre de toutes les commentaires de cette page -->
+            <span id="comments-count" class="comments-count">0</span>
+            <div id="comments-panel" class="comment-content hidden" role="dialog" aria-label="Commentaires">
+              <div class="comments-panel-header">
+                <div>
+                  <h3>Commentaires</h3>
+                  <p class="comments-subtitle">Sur cette page</p>
+                </div>
+                <button id="comments-close-btn" class="btn-close" type="button" aria-label="Fermer">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+
+              <ul id="comments-list" class="comments-list"></ul>
+
+              <form id="comment-form" class="comment-form">
+                <textarea id="comment-input" placeholder="Écrire un commentaire..."></textarea>
+                <div class="comment-form-actions">
+                  <button id="comment-cancel-btn" type="button" class="hidden">Annuler</button>
+                  <button id="comment-submit-btn" type="submit">
+                    <i data-lucide="send" class="icon"></i>
+                    Publier
+                  </button>
+                </div>
+                <div class="form-error" id="comment-error"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue pages partagées -->
+      <div id="shared-pages-view" class="hidden">
+        <h2 class="view-title">Pages partagées</h2>
+        <p class="shared-pages-subtitle">Accès externes reçus sur vos pages.</p>
+        <ul id="shared-page-list"></ul>
+      </div>
+
+      <!-- Vue dashboard -->
+      <div id="dashboard-view" class="hidden">
+        <h2 class="view-title">Dashboard</h2>
+
+        <!-- Période / filtres -->
+        <div id="dashboard-period-controls" class="period-controls">
+          <button class="period-btn active" data-period="7d">7 derniers jours</button>
+          <button class="period-btn" data-period="30d">30 derniers jours</button>
+          <button class="period-btn" data-period="1y">12 mois</button>
+        </div>
+
+        <!-- Métriques principales -->
+        <div id="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stat-workspaces">—</span>
+            <span class="stat-label">Workspaces</span>
+            <span id="stat-workspaces-trend" class="stat-trend">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-pages">—</span>
+            <span class="stat-label">Pages</span>
+            <span id="stat-pages-trend" class="stat-trend">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-comments">—</span>
+            <span class="stat-label">Commentaires</span>
+            <span id="stat-comments-trend" class="stat-trend">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stat-collaborators">—</span>
+            <span class="stat-label">Collaborateurs</span>
+            <span id="stat-collaborators-trend" class="stat-trend">—</span>
+          </div>
+        </div>
+
+        <!-- Graphiques activité -->
+        <div id="dashboard-chart" class="dashboard-chart">
+          <h3 class="section-title">Graphique d'activité</h3>
+          <div id="dashboard-chart-inner" class="dashboard-chart-inner"></div>
+        </div>
+
+        <!-- Nouveaux blocs -->
+        <div id="dashboard-meta-grid" class="dashboard-meta-grid">
+          <div class="meta-card">
+            <h3>Votre activité</h3>
+            <p>Pages créées : <strong id="personal-pages">—</strong></p>
+            <p>Commentaires écrits : <strong id="personal-comments">—</strong></p>
+            <p>Temps moyen réponse : <strong id="personal-response-time">—</strong></p>
+          </div>
+          <div class="meta-card">
+            <h3>Top workspaces</h3>
+            <ol id="top-workspaces-list" class="top-workspaces-list"></ol>
+          </div>
+        </div>
+
+        <!-- Workspaces les plus actifs -->
+        <h3 class="section-title">Activité par workspace</h3>
+        <div id="workspace-stats-list"></div>
+
+        <!-- Activité récente -->
+        <h3 class="section-title">Activité récente</h3>
+        <ul id="activity-feed"></ul>
+      </div>
+
+      <!-- Vue profil utilisateur -->
+      <div id="profile-view" class="hidden">
+        <h2 class="view-title">Profil</h2>
+        <button id="profile-logout-btn" class="profile-logout-btn" type="button" aria-label="Déconnexion">
+          <i data-lucide="log-out" class="icon"></i>
+          Déconnexion
+        </button>
+
+        <!-- Profil card avec avatar et infos de base -->
+        <div id="profile-card" class="profile-card">
+          <div class="profile-avatar">
+            <img id="profile-avatar-img" alt="Avatar" src="">
+            <span id="profile-avatar-fallback" class="avatar-fallback"></span>
+          </div>
+          <div class="profile-info">
+            <h3 id="profile-card-name"></h3>
+            <p id="profile-card-email"></p>
+            <p id="profile-card-created" class="profile-metadata"></p>
+          </div>
+        </div>
+
+        <!-- Formulaire Infos (name, email, avatar_url) -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Informations</h3>
+          <form id="profile-info-form" class="profile-form">
+            <div class="form-input">
+              <label class="form-label" for="profile-name-input">Nom</label>
+              <input type="text" id="profile-name-input" placeholder="Votre nom" maxlength="100">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-email-input">Email</label>
+              <input type="email" id="profile-email-input" placeholder="votre@email.com">
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-avatar-file">Avatar (JPG, PNG, GIF, WebP — max 5MB)</label>
+              <input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/gif,image/webp">
+              <small style="color: #999; font-size: 0.85rem;">Laissez vide pour garder l'avatar actuel</small>
+            </div>
+            <div class="form-error" id="profile-info-error"></div>
+            <div class="btn-container">
+              <button type="submit" class="btn-primary">Mettre à jour</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Formulaire Mot de passe -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Mot de passe</h3>
+          <form id="profile-password-form" class="profile-form">
+            <div class="form-input">
+              <label class="form-label" for="profile-current-password">Mot de passe actuel</label>
+              <div class="input-with-icon">
+                <input type="password" id="profile-current-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-current-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-new-password">Nouveau mot de passe</label>
+              <div class="input-with-icon">
+                <input type="password" id="profile-new-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-new-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-input">
+              <label class="form-label" for="profile-confirm-password">Confirmer le mot de passe</label>
+              <div class="input-with-icon">
+                <input type="password" id="profile-confirm-password" placeholder="●●●●●●●●">
+                <button type="button" class="toggle-password" data-target="profile-confirm-password" aria-label="Afficher le mot de passe" aria-pressed="false">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-error" id="profile-password-error"></div>
+            <div class="btn-container">
+              <button type="submit" class="btn-primary btn-p-sm">Changer le mot de passe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Navigation mobile bottom (affichée sur petits écrans) -->
+    <nav id="mobile-bottom-nav" class="mobile-bottom-nav" aria-label="Navigation mobile">
+      <button id="mobile-dashboard-btn" class="bottom-nav-btn" type="button" aria-label="Dashboard">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </button>
+      <button id="mobile-shared-btn" class="bottom-nav-btn" type="button" aria-label="Partages">
+        <i data-lucide="share-2"></i>
+        <span>Partages</span>
+      </button>
+      <div class="mobile-dropdown-wrap">
+        <button id="mobile-workspaces-btn" class="bottom-nav-btn" type="button" aria-label="Workspaces">
+          <i data-lucide="layers"></i>
+          <span>Workspaces</span>
+        </button>
+        <div id="mobile-workspace-dropdown" class="mobile-dropdown hidden" role="menu" aria-label="Workspaces disponibles">
+          <ul id="mobile-workspace-list" class="mobile-workspace-list"></ul>
+        </div>
+      </div>
+      <button id="mobile-profile-btn" class="bottom-nav-btn" type="button" aria-label="Profil">
+        <i data-lucide="user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ── Modals ─────────────────────────────────────────────────────── -->
+  <div id="workspace-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="workspace-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="workspace-modal-title">Nouveau workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="workspace-form" class="modal-body">
+        <label class="form-label" for="workspace-name-input">Nom du workspace</label>
+        <input type="text" id="workspace-name-input" placeholder="Ex : Marketing Q2" maxlength="60" autocomplete="off">
+        <div class="form-error" id="workspace-modal-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-modal-title">Nouvelle page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="page-form" class="modal-body">
+        <label class="form-label" for="page-title-modal-input">Titre de la page</label>
+        <input type="text" id="page-title-modal-input" placeholder="Ex : Plan du sprint" maxlength="80" autocomplete="off">
+        <div class="form-error" id="page-modal-error"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="share-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="modal share-modal" role="document">
+      <div class="modal-header">
+        <h3 id="share-modal-title">Partager la page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="share-form" class="modal-body">
+        <label class="form-label" for="share-email-input">Partager avec</label>
+        <div class="share-form-row">
+          <input type="email" id="share-email-input" placeholder="Email du destinataire">
+          <select id="share-permission-select">
+            <option value="read">Lecture</option>
+            <option value="edit">Édition</option>
+          </select>
+          <button id="share-submit-btn" type="submit" class="btn-primary">Partager</button>
+        </div>
+        <div class="form-error" id="share-error"></div>
+      </form>
+      <div class="share-list-header">
+        <p class="form-label">Accès existants</p>
+        <span id="share-total" class="share-total">0</span>
+      </div>
+      <ul id="share-list" class="share-list"></ul>
+    </div>
+  </div>
+
+  <div id="workspace-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="workspace-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="workspace-delete-title">Supprimer le workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="workspace-delete-form" class="modal-body">
+        <p>Cette action est définitive. Toutes les pages du workspace seront supprimées.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-delete-title">Supprimer la page</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="page-delete-form" class="modal-body">
+        <p>La page sera supprimée définitivement.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="share-remove-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="share-remove-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="share-remove-title">Retirer l'accès</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="share-remove-form" class="modal-body">
+        <p>Retirer l'accès de <strong id="share-remove-name">ce membre</strong> ?</p>
+        <p>Il ne pourra plus consulter cette page.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Retirer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="logout-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="logout-modal-title">Se déconnecter</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="logout-form" class="modal-body">
+        <p>Tu vas être déconnecté de cette session.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-primary">Se déconnecter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="member-remove-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="member-remove-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="member-remove-title">Retirer un collaborateur</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="member-remove-form" class="modal-body">
+        <p>Retirer <strong id="member-remove-name">ce membre</strong> du workspace ?</p>
+        <p>Il perdra l'accès et ses droits.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Retirer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="member-leave-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="member-leave-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="member-leave-title">Quitter le workspace</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="member-leave-form" class="modal-body">
+        <p>Tu es sur le point de quitter ce workspace.</p>
+        <p>Tu perdras l'accès et tes droits.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Quitter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="comment-delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="comment-delete-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="comment-delete-title">Supprimer le commentaire</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="comment-delete-form" class="modal-body">
+        <p>Cette action est définitive.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal-close>Annuler</button>
+          <button type="submit" class="btn-danger-solid">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="page-title-required-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="page-title-required-title">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="page-title-required-title">Titre requis</h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Merci d'indiquer un titre avant de sauvegarder.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" data-modal-close>Compris</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts — dans l'ordre de dépendance -->
+  <script id="lucide-script" src="/js/lucide.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/state.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
