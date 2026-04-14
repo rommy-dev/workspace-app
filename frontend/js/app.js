@@ -887,6 +887,13 @@ async function finalizeMemberRemoval(userId, isSelf) {
 }
 
 document.getElementById('member-list').addEventListener('click', async (e) => {
+  // Handle avatar clicks
+  const avatar = e.target.closest('.member-avatar');
+  if (avatar && avatar.dataset.avatarUrl) {
+    ui.openAvatarModal(avatar.dataset.avatarUrl);
+    return;
+  }
+
   const btn = e.target.closest('button[data-action]');
   if (!btn || !state.currentWorkspaceId) return;
 

@@ -44,6 +44,7 @@ class MemberController
                 'user_id'    => $owner['id'],
                 'name'       => $owner['name'],
                 'email'      => $owner['email'],
+                'avatar_url' => $owner['avatar_url'],
             ]);
         }
 

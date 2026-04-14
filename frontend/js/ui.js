@@ -289,7 +289,43 @@ const ui = {
 
       const avatar = document.createElement('div');
       avatar.className = 'member-avatar';
-      avatar.textContent = member.name.charAt(0).toUpperCase();
+      
+      if (member.avatar_url) {
+        const avatarImg = document.createElement('img');
+        avatarImg.src = member.avatar_url.startsWith('http') 
+          ? member.avatar_url 
+          : '/' + member.avatar_url;
+        avatarImg.alt = `Avatar de ${member.name}`;
+        avatarImg.dataset.avatarUrl = avatarImg.src;
+        avatarImg.className = 'member-avatar-img';
+        
+        // Fallback if image fails to load
+        avatarImg.onerror = function() {
+          this.style.display = 'none';
+          const fallback = document.createElement('div');
+          fallback.className = 'member-avatar-fallback';
+          fallback.textContent = member.name.charAt(0).toUpperCase();
+          avatar.appendChild(fallback);
+        };
+        
+        avatar.appendChild(avatarImg);
+      } else {
+        const fallback = document.createElement('div');
+        fallback.className = 'member-avatar-fallback';
+        fallback.textContent = member.name.charAt(0).toUpperCase();
+        avatar.appendChild(fallback);
+      }
+      
+      // Make avatar clickable to open modal if there's an image
+      if (member.avatar_url) {
+        avatar.style.cursor = 'pointer';
+        avatar.dataset.avatarUrl = member.avatar_url.startsWith('http') 
+          ? member.avatar_url 
+          : '/' + member.avatar_url;
+        avatar.setAttribute('title', `Agrandir l'avatar de ${member.name}`);
+        avatar.setAttribute('role', 'button');
+        avatar.setAttribute('aria-label', `Agrandir l'avatar de ${member.name}`);
+      }
 
       const details = document.createElement('div');
       details.className = 'member-details';
