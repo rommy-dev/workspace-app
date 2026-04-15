@@ -799,6 +799,11 @@ document.querySelector('#sidebar-header .workspace-sidebar-header h2').addEventL
   document.getElementById('new-workspace-btn').click();
 });
 
+// Bouton mobile pour créer un workspace
+document.getElementById('mobile-new-workspace-btn').addEventListener('click', () => {
+  ui.openModal('workspace-modal', 'workspace-name-input', 'workspace-modal-error');
+});
+
 document.getElementById('workspace-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   ui.clearError('workspace-modal-error');

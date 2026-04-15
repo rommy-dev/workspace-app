@@ -761,7 +761,7 @@ body.sidebar-collapsed .user-meta span {
   gap: 8px;
   cursor: pointer;
 }
-#new-workspace-btn {
+#new-workspace-btn, #mobile-new-workspace-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -777,7 +777,7 @@ body.sidebar-collapsed .user-meta span {
   transition: all 0.2s ease-in-out;
 }
 
-#new-workspace-btn:hover {
+#new-workspace-btn:hover, #mobile-new-workspace-btn:hover {
   transform: translateY(-2px);
   background: #0a0a0a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -988,12 +988,18 @@ body.sidebar-collapsed .btn-logout span {
     border-radius: 10px;
     box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.15);
     z-index: 930;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .mobile-workspace-list {
     list-style: none;
-    margin: 0;
+    margin: 0.25rem 0 0 0;
     padding: 0;
+    border-top: 1px solid #999;
   }
 
   .mobile-workspace-item {
