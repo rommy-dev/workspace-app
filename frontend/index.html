@@ -221,7 +221,7 @@
             <i data-lucide="layers" class="icon"></i>
             <span class="label-full">Workspaces</span>
           </h2>
-          <button id="new-workspace-btn">
+          <button id="new-workspace-btn" aria-label="Créer un nouveau workspace" title="Créer un nouveau workspace">
             <i data-lucide="plus" class="icon"></i>
           </button>
         </div>
@@ -401,6 +401,14 @@
             <span class="stat-label">Collaborateurs</span>
             <span id="stat-collaborators-trend" class="stat-trend">—</span>
           </div>
+        </div>
+
+        <!-- CTA rapide pour créer un workspace -->
+        <div class="dashboard-cta">
+          <button id="dashboard-create-workspace-btn" class="cta-button">
+            <i data-lucide="plus-circle" class="icon"></i>
+            Créer un nouveau workspace
+          </button>
         </div>
 
         <!-- Graphiques activité -->

@@ -789,6 +789,16 @@ document.getElementById('new-workspace-btn').addEventListener('click', () => {
   ui.openModal('workspace-modal', 'workspace-name-input', 'workspace-modal-error');
 });
 
+// Bouton CTA du dashboard pour créer un workspace
+document.getElementById('dashboard-create-workspace-btn').addEventListener('click', () => {
+  document.getElementById('new-workspace-btn').click();
+});
+
+// Titre Workspaces cliquable pour créer un workspace
+document.querySelector('#sidebar-header .workspace-sidebar-header h2').addEventListener('click', () => {
+  document.getElementById('new-workspace-btn').click();
+});
+
 document.getElementById('workspace-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   ui.clearError('workspace-modal-error');
