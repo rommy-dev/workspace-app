@@ -134,7 +134,9 @@ class AuthController
     {
         // Régénère l'ID de session après connexion — protection contre
         // la fixation de session (session fixation attack)
-        session_regenerate_id(true);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
 
         $_SESSION['user_id'] = $userId;
     }
