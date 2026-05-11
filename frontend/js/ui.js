@@ -4,6 +4,12 @@ const ui = {
   show(id)   { document.getElementById(id).classList.remove('hidden'); },
   hide(id)   { document.getElementById(id).classList.add('hidden'); },
   text(id, t){ document.getElementById(id).textContent = t; },
+
+  // Tronque un texte et ajoute des "..." s'il dépasse la longueur max
+  truncateText(text, maxLength = 20) {
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  },
   val(id)    { return document.getElementById(id).value.trim(); },
   setVal(id, v){ document.getElementById(id).value = v; },
   clearVal(id) { document.getElementById(id).value = ''; },
@@ -212,7 +218,7 @@ const ui = {
 
       const nameEl = document.createElement('span');
       nameEl.className = 'ws-name';
-      nameEl.textContent = ws.name;
+      nameEl.textContent = this.truncateText(ws.name, 25);
 
       li.appendChild(initialsEl);
       li.appendChild(nameEl);
