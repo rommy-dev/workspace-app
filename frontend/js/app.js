@@ -611,7 +611,8 @@ const modalIds = [
   'member-leave-modal',
   'share-remove-modal',
   'comment-delete-modal',
-  'page-title-required-modal'
+  'page-title-required-modal',
+  'workspace-update-modal'
 ];
 let pendingMemberRemoval = null;
 let pendingMemberLeave = null;
@@ -823,6 +824,49 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
   } catch (err) {
     const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
     ui.showError('workspace-modal-error', msg);
+  }
+});
+
+document.getElementById('update-workspace-title-btn').addEventListener('click', async () => {
+  if (!state.currentWorkspaceId) return;
+  const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+  if (!workspace) return;
+  
+  ui.setVal('workspace-update-name-input', workspace.name);
+  ui.openModal('workspace-update-modal', 'workspace-update-name-input', 'workspace-update-error');
+});
+
+document.getElementById('workspace-update-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!state.currentWorkspaceId) return;
+  
+  ui.clearError('workspace-update-error');
+  const name = ui.val('workspace-update-name-input');
+  
+  if (!name || name.length < 2) {
+    ui.showError('workspace-update-error', 'Le nom doit contenir au moins 2 caractères.');
+    return;
+  }
+
+  try {
+    const data = await api.workspaces.update(state.currentWorkspaceId, name.trim());
+    
+    // Mettre à jour le workspace dans l'état
+    const wsIndex = state.workspaces.findIndex(w => w.id === state.currentWorkspaceId);
+    if (wsIndex !== -1) {
+      state.workspaces[wsIndex] = data.workspace;
+    }
+    
+    // Rafraîchir l'affichage
+    ui.renderWorkspaceList(state.workspaces, state.currentWorkspaceId);
+    ui.text('workspace-title', data.workspace.name);
+    
+    ui.closeModal('workspace-update-modal');
+    ui.clearVal('workspace-update-name-input');
+    ui.showNotification('Workspace modifié avec succès !');
+  } catch (err) {
+    const msg = err.errors ? Object.values(err.errors).join(' ') : err.message;
+    ui.showError('workspace-update-error', msg);
   }
 });
 
