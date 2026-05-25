@@ -16,6 +16,7 @@ Application web collaborative de gestion de contenu — workspaces, pages, comme
 
 | Couche | Technologie | Décision |
 |--------|-------------|----------|
+| Conteneurisation | Docker Compose | Lancement reproductible en une commande |
 | Backend | PHP 8.3 natif | Comprendre le cycle HTTP sans abstraction |
 | Base de données | MySQL 8 | Relations, index, agrégations SQL |
 | Frontend | JavaScript vanilla | DOM, Event Loop, Fetch API, gestion d'état manuelle |
@@ -44,6 +45,8 @@ workspace-app/
 │   └── css/
 ├── database/
 │   └── workspace_app.sql  # Schéma complet avec FK, index, contraintes
+├── Dockerfile             # Image PHP 8.3 + extensions PDO MySQL
+├── docker-compose.yml     # Services app + db
 └── tests/
     └── Integration/       # Tests HTTP sur DB dédiée
 ```
@@ -130,36 +133,55 @@ Décision notable : `ON DELETE CASCADE` sur les dépendances de workspace (pages
 - Messages d'erreur login volontairement vagues — prévention énumération users
 - Contrôle d'accès vérifié à chaque route : authentification → existence ressource → autorisation
 
-## Installation locale
+## Installation Docker
 
-**Prérequis** : PHP 8.3, MySQL 8, Composer
+**Prérequis** : Docker et Docker Compose
+
 ```bash
 git clone https://github.com/rommy-dev/workspace-app
 cd workspace-app
-composer install
 
-# Crée la base de données
-mysql -u root -e "CREATE DATABASE workspace_app CHARACTER SET utf8mb4"
-mysql -u root workspace_app < database/workspace_app.sql
+# Configure l'environnement pour l'application et Docker Compose
+cp backend/.env.example backend/.env
+cp backend/.env.example .env
 
-# Configure l'environnement
-cp .env.example .env
-# Édite .env avec tes credentials MySQL
-
-# Lance le serveur de développement
-php -S localhost:8080 -t public/
+# Lance l'application et la base de données
+docker compose up --build
 ```
 
-## Tests
+L'application est disponible sur :
+
+```txt
+http://localhost:8080
+```
+
+Le conteneur `db` initialise automatiquement MySQL avec `database/workspace_app.sql` au premier démarrage. Les variables `MYSQL_*` du fichier `.env` racine sont utilisées par `docker-compose.yml`, tandis que les variables `DB_*` sont utilisées par le backend PHP.
+
+En mode Docker, garde cette logique :
+
 ```bash
-# Crée la DB de test
-mysql -u root -e "CREATE DATABASE workspace_app_test CHARACTER SET utf8mb4"
-mysql -u root workspace_app_test < database/workspace_app.sql
+DB_HOST=db
+DB_PORT=3306
+```
 
-cp .env.example .env.test
-# Édite .env.test avec workspace_app_test comme DB_NAME
+Si la base doit être recréée depuis zéro, supprime le volume Docker :
 
-./vendor/bin/phpunit --testdox
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+## Services Docker
+
+| Service | Rôle | Port |
+|---------|------|------|
+| `app` | Serveur PHP exposant `public/` | `8080` |
+| `db` | MySQL 8 avec initialisation automatique | `3307` côté machine, `3306` côté Docker |
+
+## Tests
+
+```bash
+docker compose exec app ./vendor/bin/phpunit --testdox
 ```
 
 ## Décisions techniques
