@@ -67,15 +67,42 @@ class Database
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
         ];
 
-        try {
-            return new PDO($dsn, $user, $pass, $options);
-        } catch (PDOException $e) {
-            // On ne re-throw pas le message brut en prod
+        $attempts = 10;
+        $lastException = null;
+
+        while ($attempts > 0) {
+            try {
+                return new PDO($dsn, $user, $pass, $options);
+            } catch (PDOException $e) {
+                $lastException = $e;
+                $attempts--;
+
+                if ($attempts > 0) {
+                    sleep(1);
+                }
+            }
+        }
+
+        if ($appEnv === 'development') {
             throw new \RuntimeException(
-                'Erreur de connexion à la base de données. Vérifiez votre .env.',
-                (int) $e->getCode(),
-                $e  // $e reste accessible via getPrevious() pour le debug
+                sprintf(
+                    'DB unreachable after retries. Host=%s Port=%s Database=%s User=%s Error=%s',
+                    $host,
+                    $port,
+                    $dbname,
+                    $user,
+                    $lastException?->getMessage() ?? 'unknown'
+                ),
+                (int) ($lastException?->getCode() ?? 0),
+                $lastException
             );
         }
+
+        // On ne re-throw pas le message brut en prod
+        throw new \RuntimeException(
+            'Erreur de connexion à la base de données. Vérifiez votre .env.',
+            (int) ($lastException?->getCode() ?? 0),
+            $lastException
+        );
     }
 }
