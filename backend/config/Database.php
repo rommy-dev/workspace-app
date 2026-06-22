@@ -21,6 +21,13 @@ class Database
             self::$connection = self::createConnection();
         }
 
+        // Vérifie que la connexion est toujours vivante (Railway redémarre MySQL)
+        try {
+            self::$connection->query('SELECT 1');
+        } catch (PDOException $e) {
+            self::$connection = self::createConnection();
+        }
+
         return self::$connection;
     }
 
