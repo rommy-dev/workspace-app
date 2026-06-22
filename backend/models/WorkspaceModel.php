@@ -19,13 +19,25 @@ class WorkspaceModel
     public function findAllByUser(int $userId): array
     {
         $stmt = $this->db->prepare("
-            SELECT DISTINCT w.id, w.name, w.owner_id, w.created_at,
-                   (w.owner_id = :uid) AS is_owner
+            SELECT
+                w.id,
+                w.name,
+                w.owner_id,
+                w.created_at,
+                (w.owner_id = :uid) AS is_owner,
+                GREATEST(
+                    w.created_at,
+                    COALESCE(MAX(p.created_at), w.created_at),
+                    COALESCE(MAX(p.updated_at), w.created_at)
+                ) AS last_activity
             FROM workspaces w
             LEFT JOIN workspace_members wm
                    ON wm.workspace_id = w.id AND wm.user_id = :uid2
+            LEFT JOIN pages p
+                   ON p.workspace_id = w.id
             WHERE w.owner_id = :uid3 OR wm.user_id = :uid4
-            ORDER BY w.created_at DESC
+            GROUP BY w.id, w.name, w.owner_id, w.created_at
+            ORDER BY last_activity DESC, w.created_at DESC, w.id DESC
         ");
         $stmt->execute([
             ':uid'  => $userId,

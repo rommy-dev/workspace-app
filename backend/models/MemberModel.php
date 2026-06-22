@@ -19,7 +19,7 @@ class MemberModel
     {
         $stmt = $this->db->prepare("
             SELECT wm.id, wm.role, wm.created_at,
-                   u.id AS user_id, u.name, u.email
+                   u.id AS user_id, u.name, u.email, u.avatar_url
             FROM workspace_members wm
             JOIN users u ON u.id = wm.user_id
             WHERE wm.workspace_id = ?
