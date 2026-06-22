@@ -198,15 +198,19 @@ const ui = {
     const list = document.getElementById('workspace-list');
     list.innerHTML = '';
 
+    const existingBtn = document.getElementById('show-all-workspaces-btn');
+    if (existingBtn) existingBtn.remove();
+
     if (workspaces.length === 0) {
       list.innerHTML = '<li class="empty-hint">Aucun workspace</li>';
       this.refreshIcons();
       return;
     }
 
-    workspaces.forEach(ws => {
+    const SIDEBAR_LIMIT = 10;
+    workspaces.slice(0, SIDEBAR_LIMIT).forEach(ws => {
       const li = document.createElement('li');
-      li.className = 'workspace-item' + (ws.id === currentId ? ' active' : '');
+      li.className = 'workspace-item' + (parseInt(ws.id) === currentId ? ' active' : '');
       li.title = ws.name;
       const initials = ws.name
         ? ws.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -226,7 +230,65 @@ const ui = {
       list.appendChild(li);
     });
 
+    if (workspaces.length > SIDEBAR_LIMIT) {
+      const btn = document.createElement('button');
+      btn.id = 'show-all-workspaces-btn';
+      btn.type = 'button';
+      btn.className = 'show-all-workspaces-btn';
+      btn.textContent = 'Afficher tous les workspaces';
+      list.insertAdjacentElement('afterend', btn);
+    }
+
     this.refreshIcons();
+  },
+
+  renderAllWorkspacesModal(workspaces, currentId, page, pageSize) {
+    const list = document.getElementById('all-workspaces-list');
+    const indicator = document.getElementById('all-workspaces-page-indicator');
+    const prevBtn = document.getElementById('all-workspaces-prev');
+    const nextBtn = document.getElementById('all-workspaces-next');
+    if (!list || !indicator || !prevBtn || !nextBtn) return page;
+
+    const totalPages = Math.max(1, Math.ceil(workspaces.length / pageSize));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const start = (safePage - 1) * pageSize;
+    const pageItems = workspaces.slice(start, start + pageSize);
+
+    list.innerHTML = '';
+
+    if (pageItems.length === 0) {
+      list.innerHTML = '<li class="empty-hint">Aucun workspace</li>';
+    } else {
+      pageItems.forEach(ws => {
+        const li = document.createElement('li');
+        li.className = 'all-workspaces-item' + (parseInt(ws.id) === currentId ? ' active' : '');
+        li.title = ws.name;
+        li.dataset.id = ws.id;
+
+        const initials = ws.name
+          ? ws.name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+          : '?';
+
+        const initialsEl = document.createElement('span');
+        initialsEl.className = 'all-workspaces-initials';
+        initialsEl.textContent = initials || '?';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'all-workspaces-name';
+        nameEl.textContent = ws.name;
+
+        li.appendChild(initialsEl);
+        li.appendChild(nameEl);
+        list.appendChild(li);
+      });
+    }
+
+    indicator.textContent = `Page ${safePage} / ${totalPages}`;
+    prevBtn.disabled = safePage <= 1;
+    nextBtn.disabled = safePage >= totalPages;
+
+    this.refreshIcons();
+    return safePage;
   },
 
   // ── Workspace view ───────────────────────────────────────────────────

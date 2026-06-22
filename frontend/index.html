@@ -550,6 +550,7 @@
         <div id="mobile-workspace-dropdown" class="mobile-dropdown hidden" role="menu" aria-label="Workspaces disponibles">
           <button id="mobile-new-workspace-btn" aria-label="Créer un nouveau workspace" title="Créer un nouveau workspace">
             <i data-lucide="plus" class="icon"></i>
+            Créer
           </button>
           <ul id="mobile-workspace-list" class="mobile-workspace-list"></ul>
         </div>
@@ -792,6 +793,28 @@
         <p>Merci d'indiquer un titre avant de sauvegarder.</p>
         <div class="modal-actions">
           <button type="button" class="btn-primary" data-modal-close>Compris</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="all-workspaces-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="all-workspaces-modal-title">
+    <div class="modal all-workspaces-modal" role="document">
+      <div class="modal-header">
+        <h3 id="all-workspaces-modal-title">
+          <i data-lucide="layers" class="icon"></i>
+          Tous les workspaces
+        </h3>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul id="all-workspaces-list" class="all-workspaces-list"></ul>
+        <div class="all-workspaces-pagination">
+          <button type="button" id="all-workspaces-prev" class="btn-secondary">Précédent</button>
+          <span id="all-workspaces-page-indicator" class="all-workspaces-page-indicator">Page 1 / 1</span>
+          <button type="button" id="all-workspaces-next" class="btn-secondary">Suivant</button>
         </div>
       </div>
     </div>

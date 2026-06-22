@@ -612,8 +612,12 @@ const modalIds = [
   'share-remove-modal',
   'comment-delete-modal',
   'page-title-required-modal',
-  'workspace-update-modal'
+  'workspace-update-modal',
+  'all-workspaces-modal'
 ];
+const ALL_WORKSPACES_PAGE_SIZE = 12;
+const MOBILE_WORKSPACE_LIMIT = 3;
+let allWorkspacesModalPage = 1;
 let pendingMemberRemoval = null;
 let pendingMemberLeave = null;
 let pendingCommentDelete = null;
@@ -667,7 +671,84 @@ function resolveCurrentRole(workspace, members) {
 async function loadWorkspaces() {
   const data = await api.workspaces.list();
   state.workspaces = data.workspaces;
+  refreshWorkspaceNavigation();
+}
+
+function renderAllWorkspacesModalPage() {
+  allWorkspacesModalPage = ui.renderAllWorkspacesModal(
+    state.workspaces,
+    state.currentWorkspaceId,
+    allWorkspacesModalPage,
+    ALL_WORKSPACES_PAGE_SIZE
+  );
+}
+
+function renderMobileWorkspaceList() {
+  const workspaceDropdown = document.getElementById('mobile-workspace-dropdown');
+  const workspaceList = document.getElementById('mobile-workspace-list');
+  if (!workspaceList) return;
+
+  workspaceList.innerHTML = '';
+  if (!state.workspaces || state.workspaces.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'Aucun workspace';
+    li.className = 'mobile-workspace-item';
+    li.style.opacity = '0.65';
+    workspaceList.appendChild(li);
+    return;
+  }
+
+  state.workspaces.slice(0, MOBILE_WORKSPACE_LIMIT).forEach((ws) => {
+    const li = document.createElement('li');
+    li.textContent = ws.name;
+    li.className = 'mobile-workspace-item';
+    li.dataset.workspaceId = ws.id;
+
+    if (parseInt(ws.id) === state.currentWorkspaceId) {
+      li.classList.add('active');
+    }
+
+    li.addEventListener('click', async () => {
+      await selectWorkspace(parseInt(ws.id));
+      workspaceDropdown?.classList.add('hidden');
+    });
+
+    workspaceList.appendChild(li);
+  });
+
+  if (state.workspaces.length > MOBILE_WORKSPACE_LIMIT) {
+    const showMoreLi = document.createElement('li');
+    showMoreLi.className = 'mobile-show-all-workspaces-item';
+
+    const showMoreBtn = document.createElement('button');
+    showMoreBtn.type = 'button';
+    showMoreBtn.className = 'mobile-show-all-workspaces-btn';
+    showMoreBtn.textContent = 'Afficher plus';
+
+    showMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      workspaceDropdown?.classList.add('hidden');
+      openAllWorkspacesModal();
+    });
+
+    showMoreLi.appendChild(showMoreBtn);
+    workspaceList.appendChild(showMoreLi);
+  }
+}
+
+function refreshWorkspaceNavigation() {
   ui.renderWorkspaceList(state.workspaces, state.currentWorkspaceId);
+  renderMobileWorkspaceList();
+
+  if (isModalOpen('all-workspaces-modal')) {
+    renderAllWorkspacesModalPage();
+  }
+}
+
+function openAllWorkspacesModal() {
+  allWorkspacesModalPage = 1;
+  renderAllWorkspacesModalPage();
+  ui.openModal('all-workspaces-modal');
 }
 
 async function loadMembers(workspaceId, workspace) {
@@ -755,7 +836,7 @@ async function selectWorkspace(id) {
   const data = await api.pages.list(id);
   state.pages = data.pages;
 
-  const workspace = state.workspaces.find(w => w.id === id);
+  const workspace = state.workspaces.find(w => parseInt(w.id) === id);
   const dashboardBtn = document.getElementById('dashboard-btn');
   if (dashboardBtn) dashboardBtn.classList.remove('active');
   const sharedBtn = document.getElementById('shared-pages-btn');
@@ -784,6 +865,34 @@ async function selectWorkspace(id) {
 document.getElementById('workspace-list').addEventListener('click', (e) => {
   const item = e.target.closest('.workspace-item');
   if (item) selectWorkspace(parseInt(item.dataset.id));
+});
+
+document.getElementById('sidebar').addEventListener('click', (e) => {
+  if (e.target.closest('#show-all-workspaces-btn')) {
+    openAllWorkspacesModal();
+  }
+});
+
+document.getElementById('all-workspaces-list').addEventListener('click', async (e) => {
+  const item = e.target.closest('.all-workspaces-item');
+  if (!item) return;
+  await selectWorkspace(parseInt(item.dataset.id));
+  ui.closeModal('all-workspaces-modal');
+});
+
+document.getElementById('all-workspaces-prev').addEventListener('click', () => {
+  if (allWorkspacesModalPage > 1) {
+    allWorkspacesModalPage--;
+    renderAllWorkspacesModalPage();
+  }
+});
+
+document.getElementById('all-workspaces-next').addEventListener('click', () => {
+  const totalPages = Math.ceil(state.workspaces.length / ALL_WORKSPACES_PAGE_SIZE);
+  if (allWorkspacesModalPage < totalPages) {
+    allWorkspacesModalPage++;
+    renderAllWorkspacesModalPage();
+  }
 });
 
 document.getElementById('new-workspace-btn').addEventListener('click', () => {
@@ -829,7 +938,7 @@ document.getElementById('workspace-form').addEventListener('submit', async (e) =
 
 document.getElementById('update-workspace-title-btn').addEventListener('click', async () => {
   if (!state.currentWorkspaceId) return;
-  const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+  const workspace = state.workspaces.find(w => parseInt(w.id) === state.currentWorkspaceId);
   if (!workspace) return;
   
   ui.setVal('workspace-update-name-input', workspace.name);
@@ -850,15 +959,7 @@ document.getElementById('workspace-update-form').addEventListener('submit', asyn
 
   try {
     const data = await api.workspaces.update(state.currentWorkspaceId, name.trim());
-    
-    // Mettre à jour le workspace dans l'état
-    const wsIndex = state.workspaces.findIndex(w => w.id === state.currentWorkspaceId);
-    if (wsIndex !== -1) {
-      state.workspaces[wsIndex] = data.workspace;
-    }
-    
-    // Rafraîchir l'affichage
-    ui.renderWorkspaceList(state.workspaces, state.currentWorkspaceId);
+    await loadWorkspaces();
     ui.text('workspace-title', data.workspace.name);
     
     ui.closeModal('workspace-update-modal');
@@ -1075,10 +1176,11 @@ document.getElementById('page-form').addEventListener('submit', async (e) => {
 
   try {
     await api.pages.create(state.currentWorkspaceId, title.trim(), '');
+    await loadWorkspaces();
     const data = await api.pages.list(state.currentWorkspaceId);
     state.pages = data.pages;
 
-    const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+    const workspace = state.workspaces.find(w => parseInt(w.id) === state.currentWorkspaceId);
     ui.showWorkspaceView(workspace, state.pages);
     ui.closeModal('page-modal');
     ui.clearVal('page-title-modal-input');
@@ -1108,6 +1210,7 @@ document.getElementById('save-page-btn').addEventListener('click', async () => {
   }
 
   // Rafraîchit la liste pour refléter le nouveau titre
+  await loadWorkspaces();
   const data = await api.pages.list(state.currentWorkspaceId);
   state.pages = data.pages;
   ui.renderPageList(state.pages);
@@ -1126,12 +1229,13 @@ document.getElementById('page-delete-form').addEventListener('submit', async (e)
   if (state.currentPageSource === 'shared') return;
 
   await api.pages.delete(state.currentWorkspaceId, state.currentPageId);
+  await loadWorkspaces();
   state.currentPageId = null;
   resetCommentsState();
 
   const data      = await api.pages.list(state.currentWorkspaceId);
   state.pages     = data.pages;
-  const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+  const workspace = state.workspaces.find(w => parseInt(w.id) === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
   ui.closeModal('page-delete-modal');
   ui.showNotification('Page supprimée avec succès !');
@@ -1267,7 +1371,7 @@ document.getElementById('back-to-workspace-btn').addEventListener('click', () =>
     saveViewState();
     return;
   }
-  const workspace = state.workspaces.find(w => w.id === state.currentWorkspaceId);
+  const workspace = state.workspaces.find(w => parseInt(w.id) === state.currentWorkspaceId);
   ui.showWorkspaceView(workspace, state.pages);
   state.currentView = 'workspace';
   saveViewState();
@@ -1433,41 +1537,11 @@ if (mobileSharedBtn) {
 
 if (mobileWorkspacesBtn) {
   const workspaceDropdown = document.getElementById('mobile-workspace-dropdown');
-  const workspaceList = document.getElementById('mobile-workspace-list');
 
   mobileWorkspacesBtn.addEventListener('click', () => {
-    if (!workspaceDropdown || !workspaceList) return;
+    if (!workspaceDropdown) return;
 
-    // Mise à jour du contenu à chaque ouverture
-    workspaceList.innerHTML = '';
-    if (!state.workspaces || state.workspaces.length === 0) {
-      const li = document.createElement('li');
-      li.textContent = 'Aucun workspace';
-      li.className = 'mobile-workspace-item';
-      li.style.opacity = '0.65';
-      workspaceList.appendChild(li);
-    } else {
-      state.workspaces.forEach((ws) => {
-        const li = document.createElement('li');
-        li.textContent = ws.name;
-        li.className = 'mobile-workspace-item';
-        li.dataset.workspaceId = ws.id;
-
-        if (state.currentWorkspaceId === ws.id) {
-          li.classList.add('active');
-        }
-
-        li.addEventListener('click', async () => {
-          await selectWorkspace(ws.id);
-          if (workspaceDropdown) {
-            workspaceDropdown.classList.add('hidden');
-          }
-        });
-
-        workspaceList.appendChild(li);
-      });
-    }
-
+    renderMobileWorkspaceList();
     workspaceDropdown.classList.toggle('hidden');
     mobileWorkspacesBtn.classList.add('active');
     mobileDashboardBtn?.classList.remove('active');
