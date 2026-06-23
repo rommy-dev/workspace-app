@@ -13,10 +13,10 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Crée le dossier uploads et donne les permissions à Apache (www-data)
-RUN mkdir -p public/uploads && \
-    chown -R www-data:www-data public/uploads && \
-    chmod -R 775 public/uploads
+# Crée les dossiers et donne les permissions à Apache (www-data)
+RUN mkdir -p public/uploads public/avatars && \
+    chown -R www-data:www-data public/uploads public/avatars && \
+    chmod -R 775 public/uploads public/avatars
     
 RUN composer install --no-dev --optimize-autoloader
 

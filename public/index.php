@@ -72,7 +72,6 @@ $router = new Router();
 
 // ── Routes publiques ───────────────────────────────────────────────
 $router->get('/api/ping',           [Controllers\TestController::class, 'ping']);
-$router->get('/api/debug',          [Controllers\DebugController::class, 'index']);
 $router->post('/api/auth/register', [Controllers\AuthController::class, 'register']);
 $router->post('/api/auth/login',    [Controllers\AuthController::class, 'login']);
 
