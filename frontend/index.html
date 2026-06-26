@@ -456,9 +456,23 @@
 
         <!-- Profil card avec avatar et infos de base -->
         <div id="profile-card" class="profile-card">
-          <div class="profile-avatar">
-            <img id="profile-avatar-img" alt="Avatar" src="">
-            <span id="profile-avatar-fallback" class="avatar-fallback"></span>
+          <div class="profile-avatar-wrap">
+            <div id="profile-avatar" class="profile-avatar" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-label="Options avatar">
+              <img id="profile-avatar-img" alt="Avatar" src="">
+              <span id="profile-avatar-fallback" class="avatar-fallback"></span>
+              <div id="profile-avatar-popover" class="profile-avatar-popover hidden" role="menu" aria-label="Actions avatar">
+                <button type="button" class="profile-avatar-popover-item hidden" data-action="view-profile-avatar" role="menuitem">
+                  <i data-lucide="eye" class="icon"></i>
+                  Voir la photo de profil
+                </button>
+                <button type="button" class="profile-avatar-popover-item" data-action="change-profile-avatar" role="menuitem">
+                  <i data-lucide="image-plus" class="icon"></i>
+                  Modifier la photo de profil
+                </button>
+              </div>
+              <input type="file" id="profile-avatar-file" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" aria-hidden="true">
+            </div>
+            <div class="form-error" id="profile-avatar-error"></div>
           </div>
           <div class="profile-info">
             <h3 id="profile-card-name"></h3>
@@ -467,7 +481,7 @@
           </div>
         </div>
 
-        <!-- Formulaire Infos (name, email, avatar_url) -->
+        <!-- Formulaire Infos (name, email) -->
         <div class="profile-section">
           <h3 class="profile-section-title">Informations</h3>
           <form id="profile-info-form" class="profile-form">
@@ -478,11 +492,6 @@
             <div class="form-input">
               <label class="form-label" for="profile-email-input">Email</label>
               <input type="email" id="profile-email-input" placeholder="votre@email.com">
-            </div>
-            <div class="form-input">
-              <label class="form-label" for="profile-avatar-file">Avatar (JPG, PNG, GIF, WebP — max 5MB)</label>
-              <input type="file" id="profile-avatar-file" accept="image/jpeg,image/png,image/gif,image/webp">
-              <small style="color: #999; font-size: 0.85rem;">Laissez vide pour garder l'avatar actuel</small>
             </div>
             <div class="form-error" id="profile-info-error"></div>
             <div class="btn-container">

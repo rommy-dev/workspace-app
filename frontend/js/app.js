@@ -1484,13 +1484,98 @@ if (profileLogoutBtn) {
   });
 }
 
-// Ouvre le modal agrandi sur clic avatar dans la vue profil
-const profileAvatarImg = document.getElementById('profile-avatar-img');
-if (profileAvatarImg) {
-  profileAvatarImg.addEventListener('click', (e) => {
+// Popover avatar dans la vue profil
+const profileAvatar = document.getElementById('profile-avatar');
+const profileAvatarPopover = document.getElementById('profile-avatar-popover');
+const profileAvatarFileInput = document.getElementById('profile-avatar-file');
+
+const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
+const AVATAR_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+if (profileAvatar) {
+  profileAvatar.addEventListener('click', (e) => {
+    if (e.target.closest('#profile-avatar-popover')) return;
     e.stopPropagation();
-    const avatarUrl = e.currentTarget.dataset.avatarUrl;
-    if (avatarUrl) ui.openAvatarModal(avatarUrl);
+    ui.toggleProfileAvatarPopover(profileAvatar);
+  });
+
+  profileAvatar.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      ui.toggleProfileAvatarPopover(profileAvatar);
+    }
+  });
+}
+
+if (profileAvatarPopover) {
+  profileAvatarPopover.addEventListener('click', (e) => {
+    const actionBtn = e.target.closest('[data-action]');
+    if (!actionBtn) return;
+    e.stopPropagation();
+
+    const action = actionBtn.dataset.action;
+
+    if (action === 'view-profile-avatar') {
+      const avatarUrl = profileAvatar?.dataset.avatarUrl;
+      if (!avatarUrl) return;
+      ui.closeProfileAvatarPopover();
+      ui.openAvatarModal(avatarUrl);
+      return;
+    }
+
+    if (action === 'change-profile-avatar') {
+      ui.closeProfileAvatarPopover();
+      ui.clearError('profile-avatar-error');
+      profileAvatarFileInput?.click();
+    }
+  });
+}
+
+document.addEventListener('click', (event) => {
+  if (!profileAvatar || !profileAvatarPopover) return;
+  const inside = event.target.closest('#profile-avatar') || event.target.closest('#profile-avatar-popover');
+  if (!inside) {
+    ui.closeProfileAvatarPopover();
+  }
+});
+
+if (profileAvatarFileInput) {
+  profileAvatarFileInput.addEventListener('change', async () => {
+    ui.clearError('profile-avatar-error');
+
+    const file = profileAvatarFileInput.files?.[0];
+    profileAvatarFileInput.value = '';
+    if (!file) return;
+
+    if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
+      ui.showError('profile-avatar-error', 'Format invalide. Utilisez JPG, PNG, GIF ou WebP.');
+      return;
+    }
+
+    if (file.size > AVATAR_MAX_SIZE) {
+      ui.showError('profile-avatar-error', 'L\'image ne doit pas dépasser 5 Mo.');
+      return;
+    }
+
+    try {
+      const uploadData = await api.profile.uploadAvatar(file);
+      const latestUser = uploadData.user;
+
+      state.currentUser = {
+        ...state.currentUser,
+        avatar_url: latestUser.avatar_url,
+      };
+
+      ui.showAppScreen(state.currentUser);
+      ui.renderProfile(latestUser);
+      ui.showNotification('Avatar mis à jour avec succès.');
+    } catch (err) {
+      console.error('Avatar upload error:', err);
+      const msg = err.errors
+        ? Object.values(err.errors).join(' ')
+        : err.message;
+      ui.showError('profile-avatar-error', msg);
+    }
   });
 }
 
@@ -1505,6 +1590,7 @@ if (avatarModal) {
 
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    ui.closeProfileAvatarPopover();
     ui.closeAvatarModal();
   }
 });
@@ -1569,15 +1655,13 @@ if (mobileProfileBtn) {
 }
 
 
-// Formulaire Infos profile (name, email, avatar upload)
+// Formulaire Infos profile (name, email)
 document.getElementById('profile-info-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   ui.clearError('profile-info-error');
 
   const name = ui.val('profile-name-input');
   const email = ui.val('profile-email-input');
-  const avatarFileInput = document.getElementById('profile-avatar-file');
-  const avatarFile = avatarFileInput?.files?.[0];
 
   // Validation client
   if (!name || name.length < 2) {
@@ -1590,36 +1674,25 @@ document.getElementById('profile-info-form').addEventListener('submit', async (e
   }
 
   try {
-    let latestUser = null;
-
-    // 1. Upload avatar si fichier présent
-    if (avatarFile) {
-      const uploadData = await api.profile.uploadAvatar(avatarFile);
-      latestUser = uploadData.user;
-      ui.renderProfile(latestUser); // Refresh affichage avec nouvel avatar
-    }
-
-    // 2. Toujours mettre à jour nom/email
-    const updateData = await api.profile.update(name, email, latestUser?.avatar_url || state.currentUser?.avatar_url);
-    latestUser = updateData.user;
+    const updateData = await api.profile.update(name, email);
+    const latestUser = updateData.user;
 
     // Mettre à jour le state
     state.currentUser = {
       ...state.currentUser,
       name: latestUser.name,
       email: latestUser.email,
-      avatar_url: latestUser.avatar_url,
     };
-    
+
     // Mettre à jour la sidebar
     ui.showAppScreen(state.currentUser);
-    
+
     // Rafraîchir l'affichage du profil
     ui.renderProfile(latestUser);
-    
+
     // Afficher message de succès avec popup
     ui.showNotification('Profil mis à jour avec succès.');
-    
+
     // Nettoyer les erreurs
     ui.clearError('profile-info-error');
   } catch (err) {

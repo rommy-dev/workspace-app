@@ -778,40 +778,51 @@ const ui = {
     // Avatar: display image if URL exists, otherwise show fallback
     const avatarImg = document.getElementById('profile-avatar-img');
     const avatarFallback = document.getElementById('profile-avatar-fallback');
-    const profileAvatar = document.querySelector('.profile-avatar');
-    
+    const profileAvatar = document.getElementById('profile-avatar');
+    const viewAvatarBtn = document.querySelector('[data-action="view-profile-avatar"]');
+
     if (user.avatar_url) {
       // Support both local paths (avatars/...) and external URLs
-      const src = user.avatar_url.startsWith('http') 
-        ? user.avatar_url 
+      const src = user.avatar_url.startsWith('http')
+        ? user.avatar_url
         : '/' + user.avatar_url;
       avatarImg.src = src;
       avatarImg.dataset.avatarUrl = src;
       avatarImg.style.display = 'block';
       avatarFallback.classList.remove('active');
-      if (profileAvatar) profileAvatar.classList.add('has-avatar');
+      if (profileAvatar) {
+        profileAvatar.classList.add('has-avatar');
+        profileAvatar.dataset.avatarUrl = src;
+      }
+      if (viewAvatarBtn) viewAvatarBtn.classList.remove('hidden');
     } else {
       avatarImg.src = '';
       avatarImg.removeAttribute('data-avatar-url');
       avatarImg.style.display = 'none';
       avatarFallback.classList.add('active');
       avatarFallback.textContent = user.name.charAt(0).toUpperCase();
-      if (profileAvatar) profileAvatar.classList.remove('has-avatar');
+      if (profileAvatar) {
+        profileAvatar.classList.remove('has-avatar');
+        profileAvatar.removeAttribute('data-avatar-url');
+      }
+      if (viewAvatarBtn) viewAvatarBtn.classList.add('hidden');
     }
 
     // Remplir les formulaires
     this.setVal('profile-name-input', user.name);
     this.setVal('profile-email-input', user.email);
     this.clearVal('profile-avatar-file');
-    
+
     // Nettoyer les formulaires de password
     this.clearVal('profile-current-password');
     this.clearVal('profile-new-password');
     this.clearVal('profile-confirm-password');
-    
+
     // Nettoyer les erreurs
     this.clearError('profile-info-error');
     this.clearError('profile-password-error');
+    this.clearError('profile-avatar-error');
+    this.closeProfileAvatarPopover();
   },
 
   // ── Pages partagées ─────────────────────────────────────────────────
@@ -998,5 +1009,34 @@ const ui = {
     modal.setAttribute('aria-hidden', 'true');
     img.src = '';
     document.body.classList.remove('modal-open');
+  },
+
+  openProfileAvatarPopover(anchorEl) {
+    const popover = document.getElementById('profile-avatar-popover');
+    if (!popover || !anchorEl) return;
+
+    popover.classList.remove('hidden');
+    anchorEl.setAttribute('aria-expanded', 'true');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  },
+
+  closeProfileAvatarPopover() {
+    const anchorEl = document.getElementById('profile-avatar');
+    const popover = document.getElementById('profile-avatar-popover');
+    if (!popover) return;
+
+    popover.classList.add('hidden');
+    if (anchorEl) anchorEl.setAttribute('aria-expanded', 'false');
+  },
+
+  toggleProfileAvatarPopover(anchorEl) {
+    const popover = document.getElementById('profile-avatar-popover');
+    if (!popover || !anchorEl) return;
+
+    if (popover.classList.contains('hidden')) {
+      this.openProfileAvatarPopover(anchorEl);
+    } else {
+      this.closeProfileAvatarPopover();
+    }
   },
 };
