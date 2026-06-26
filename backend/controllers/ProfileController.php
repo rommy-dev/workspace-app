@@ -88,15 +88,11 @@ class ProfileController
             return;
         }
 
-        // avatar_url peut être vide = null (accepte URL ou chemin local)
-        $avatarUrl = !empty($body['avatar_url']) ? trim($body['avatar_url']) : null;
-
         // Mise à jour
         if ($this->profileModel->updateProfile(
             $userId,
             trim($body['name']),
-            strtolower(trim($body['email'])),
-            $avatarUrl
+            strtolower(trim($body['email']))
         )) {
             // Récupérer le profil mis à jour
             $user = $this->profileModel->findPublicById($userId);
@@ -190,12 +186,7 @@ class ProfileController
 
         // Sauvegarder le chemin relatif en base de données
         $avatarRelativePath = 'avatars/' . $filename;
-        if ($this->profileModel->updateProfile(
-            $userId,
-            $user['name'],
-            $user['email'],
-            $avatarRelativePath
-        )) {
+        if ($this->profileModel->updateAvatarUrl($userId, $avatarRelativePath)) {
             $updatedUser = $this->profileModel->findPublicById($userId);
             $this->respond(200, [
                 'message' => 'Avatar téléchargé avec succès.',

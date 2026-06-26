@@ -57,16 +57,28 @@ class ProfileModel
         return $stmt->fetchColumn() !== false;
     }
 
-    // Met à jour le profil (name, email, avatar_url)
-    public function updateProfile(int $id, string $name, string $email, ?string $avatarUrl): bool
+    // Met à jour le profil (name, email)
+    public function updateProfile(int $id, string $name, string $email): bool
     {
         $stmt = $this->db->prepare(
             'UPDATE users
-             SET name = ?, email = ?, avatar_url = ?
+             SET name = ?, email = ?
              WHERE id = ?'
         );
 
-        return $stmt->execute([$name, $email, $avatarUrl, $id]);
+        return $stmt->execute([$name, $email, $id]);
+    }
+
+    // Met à jour uniquement l'avatar
+    public function updateAvatarUrl(int $id, ?string $avatarUrl): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users
+             SET avatar_url = ?
+             WHERE id = ?'
+        );
+
+        return $stmt->execute([$avatarUrl, $id]);
     }
 
     // Met à jour le hash du mot de passe

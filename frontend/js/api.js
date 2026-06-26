@@ -51,7 +51,7 @@ const api = {
   profile: {
     get:            (id)                              => request('GET',  `/users/${id}`),
     me:             ()                                => request('GET',  '/profile'),
-    update:         (name, email, avatarUrl)          => request('PUT',  '/profile', { name, email, avatar_url: avatarUrl }),
+    update:         (name, email)                    => request('PUT',  '/profile', { name, email }),
     uploadAvatar:   (file)                            => {
       ui.showLoader();
       const formData = new FormData();
